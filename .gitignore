@@ -1,0 +1,89 @@
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+
+# Python
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Temporary & build files
+*.tmp
+*.bak
+*.log
+*.out
+
+# Data & temporary storage
+data/uploads/
+data/chroma_db/
+.chroma/
+*.sqlite
+*.sqlite3
+
+# Streamlit
+.streamlit/
+.streamlit/config.toml
+
+# PDFs (except the final report)
+*.pdf
+!report/main.pdf
+!presentation/Financial_QA_Presentation.pdf
+
+# Large model weights (download on demand)
+*.bin
+*.pt
+*.pth
+*.weights
+models/
+
+# IDE-generated configs
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Local development
+.claude/
+*.code-workspace
+
