@@ -38,15 +38,15 @@ st.markdown("""
 }
 .metric-card {
     background: #f0f4f8; border-radius: 8px; padding: 1rem;
-    border-left: 4px solid #1a3c6e; margin: 0.5rem 0;
+    border-left: 4px solid #1a3c6e; margin: 0.5rem 0; color: #1a1a1a;
 }
 .answer-box {
-    background: #e8f4e8; border-radius: 8px; padding: 1.2rem;
-    border-left: 4px solid #2e7d32; font-size: 1.05rem;
+    background: #ffffff; border-radius: 8px; padding: 1.2rem;
+    border-left: 4px solid #2e7d32; font-size: 1.05rem; color: #1a1a1a;
 }
 .source-box {
     background: #fff8e1; border-radius: 6px; padding: 0.8rem;
-    border-left: 3px solid #f57c00; margin: 0.3rem 0; font-size: 0.9rem;
+    border-left: 3px solid #f57c00; margin: 0.3rem 0; font-size: 0.9rem; color: #1a1a1a;
 }
 .step-badge {
     background: #1a3c6e; color: white; border-radius: 50%;
@@ -80,7 +80,7 @@ def load_qa_chain():
 
 with st.sidebar:
     st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/24701-nature-natural-beauty.jpg/1px-placeholder.png",
-             width=80, use_container_width=True)
+             width=80)
 
     st.markdown("## ⚙️ Settings")
 
@@ -150,7 +150,7 @@ with tab1:
             st.success(f"✅ File received: **{uploaded_file.name}** "
                        f"({uploaded_file.size / 1024:.1f} KB)")
 
-            if st.button("🚀 Index This Document", type="primary", use_container_width=True):
+            if st.button("🚀 Index This Document", type="primary", width="stretch"):
                 with st.spinner("Indexing — extracting text, chunking, generating embeddings..."):
                     try:
                         from pipeline import ingest_document
@@ -183,14 +183,42 @@ with tab1:
 
         # Show currently indexed documents
         st.markdown("---")
-        st.subheader("Indexed Documents")
+        st.subheader("📚 Indexed Documents")
+
+        if "confirm_clear_all" not in st.session_state:
+            st.session_state["confirm_clear_all"] = False
+
         try:
-            from pipeline import list_indexed_documents
+            from pipeline import list_indexed_documents, delete_document
             docs = list_indexed_documents()
             if docs:
                 for d in docs:
-                    st.markdown(f"📄 `{d}`")
+                    col_doc, col_del = st.columns([3, 1])
+                    col_doc.markdown(f"📄 `{d}`")
+                    if col_del.button("🗑️", key=f"del_{d}", help=f"Remove {d}"):
+                        delete_document(d)
+                        st.success(f"Removed **{d}** from the index.")
+                        st.rerun()
+
+                st.markdown("")
+                if not st.session_state["confirm_clear_all"]:
+                    if st.button("🗑️ Clear All Documents", type="secondary", width="stretch"):
+                        st.session_state["confirm_clear_all"] = True
+                        st.rerun()
+                else:
+                    st.warning("⚠️ This will permanently remove all indexed documents. Are you sure?")
+                    col_yes, col_no = st.columns(2)
+                    if col_yes.button("✅ Yes, Clear All", type="primary"):
+                        for d in docs:
+                            delete_document(d)
+                        st.session_state["confirm_clear_all"] = False
+                        st.success("All documents cleared from the index.")
+                        st.rerun()
+                    if col_no.button("❌ Cancel"):
+                        st.session_state["confirm_clear_all"] = False
+                        st.rerun()
             else:
+                st.session_state["confirm_clear_all"] = False
                 st.info("No documents indexed yet. Upload and index a PDF above.")
         except Exception:
             st.info("Index not yet initialised.")
@@ -232,7 +260,7 @@ with tab1:
         except Exception:
             source_filter = None
 
-        ask_btn = st.button("🔍 Ask", type="primary", use_container_width=True,
+        ask_btn = st.button("🔍 Ask", type="primary", width="stretch",
                             disabled=not question.strip())
 
         if ask_btn and question.strip():
@@ -380,7 +408,7 @@ with tab2:
                     "Query Time": f"{m.get('avg_query_time_ms', 0):.1f} ms",
                 })
             df = pd.DataFrame(rows)
-            st.dataframe(df, use_container_width=True, hide_index=True)
+            st.dataframe(df, width="stretch", hide_index=True)
 
         st.caption(f"Results from: `{result_files[0]}`")
 
