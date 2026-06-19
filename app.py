@@ -278,8 +278,6 @@ with tab1:
         if ask_btn and question.strip():
             with st.spinner("Retrieving relevant passages and generating answer..."):
                 try:
-                    from ingestion.embedder import EmbeddingGenerator
-                    from retrieval.vector_store import VectorStore
                     from generation.qa_chain import get_qa_chain
 
                     embedder = load_embedder()

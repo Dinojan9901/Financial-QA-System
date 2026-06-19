@@ -2,174 +2,138 @@
 
 **EC7203 Advanced Artificial Intelligence — Final Group Project**
 
-A production-grade **RAG (Retrieval-Augmented Generation)** system that lets users upload financial PDFs (10-K reports, earnings calls, SEC filings) and ask natural language questions in plain English — returning **grounded answers with page citations** and **zero hallucinations**.
+A **RAG (Retrieval-Augmented Generation)** system that lets users upload financial PDFs (10-K reports, earnings calls, SEC filings) and ask natural-language questions — returning **grounded answers with page citations**.
 
-## Quick Start (Recommended)
+🔗 **Live demo:** https://financial-app-system-bcffpkdt88dxp8krfjg7pd.streamlit.app/
 
-### Run the Streamlit Web App
+---
+
+## Quick Start
+
 ```bash
-# Install dependencies
+# 1. Install dependencies
 pip install -r requirements.txt
 
-# Start the interactive web UI
-py -3.13 -m streamlit run app.py
+# 2. Start the interactive web app
+streamlit run app.py
 ```
 
 Opens at **http://localhost:8501** — upload a PDF, ask questions, view evaluation results, explore the system internals.
+
+> Runs **100% free** by default (local MiniLM embeddings + retrieval-only answers). To get real LLM-written answers for free, add a Groq key (see *Configuration* below).
 
 ---
 
 ## Key Features
 
 ✅ **Three AI Techniques** (Course Requirement)
-- **NLP:** Text preprocessing, Word2Vec/TF-IDF baselines, Sentence-Transformers embeddings
-- **LLM:** GPT-4o-mini for grounded answer generation (with free local fallback)
-- **Prompt Engineering:** Systematic 7-rule system prompt, chain-of-thought, few-shot learning
+- **NLP:** Text preprocessing, Word2Vec / TF-IDF baselines, Sentence-Transformer embeddings
+- **LLM:** Groq (Llama 3.3 70B, free) or OpenAI GPT-4o-mini for grounded generation — with a free local fallback
+- **Prompt Engineering:** Systematic 7-rule system prompt, chain-of-thought, few-shot in-context learning
 
-✅ **Demonstrated Results**
-- MRR = 1.000 for MiniLM retrieval on the 50-sample evaluation
-- 0 hallucinations in the saved RAG and No-RAG comparison
-- RAG Keyword Hit Rate = 0.840, far above No-RAG at 0.008
+✅ **Evaluated on a real public dataset** — [`virattt/financial-qa-10K`](https://huggingface.co/datasets/virattt/financial-qa-10K) (Q&A pairs from genuine SEC 10-K filings)
 
-✅ **Three Deliverables** (All Included)
-1. **Final Report** — `report/main.pdf` (22 total pages; body under the 20-page limit, excluding references and appendices)
-2. **Demonstrable Output** — `app.py` (Streamlit web UI) + `demo.py` (terminal demo)
-3. **Python Code & Notebooks** — 28 source files + Jupyter notebook + evaluation modules
+✅ **Four Deliverables**
+1. **Final Report** — `report/main.pdf` (body within the 20-page limit, excluding references & appendices)
+2. **Demonstrable Output** — `app.py` (Streamlit web app, deployed live) + `demo.py` (terminal demo)
+3. **Code & Notebooks** — modular source + `notebooks/financial_qa_walkthrough.ipynb`
+4. **Presentation** — `presentation/` (slides + 5-minute speaker script)
 
 ---
 
-## Architecture
+## Architecture — Two-Phase RAG Pipeline
 
-### Two-Phase RAG Pipeline
-
-**Phase 1: Indexing** (runs once per document)
+**Phase 1: Indexing** (once per document)
 ```
-PDF Upload
-  ↓ [pdfplumber]
-Extract Text & Tables
-  ↓ [RecursiveCharacterTextSplitter]
-Chunk (800 tokens, 150-token overlap)
-  ↓ [all-MiniLM-L6-v2]
-Generate Embeddings
-  ↓ [ChromaDB]
-Store in Vector Database
+PDF → Extract text/tables (pdfplumber) → Chunk (800 tok, 150 overlap)
+    → Embed (all-MiniLM-L6-v2) → Store (ChromaDB)
 ```
 
-**Phase 2: Querying** (runs on every user question)
+**Phase 2: Querying** (every question)
 ```
-User Question
-  ↓ [all-MiniLM-L6-v2]
-Embed Question
-  ↓ [ChromaDB]
-Cosine Similarity Search
-  ↓
-Retrieve Top-K Chunks
-  ↓ [GPT-4o-mini + Prompt]
-Generate Grounded Answer with Citations
+Question → Embed → Cosine search (top-K) → LLM + prompt → Grounded answer + citations
 ```
 
 ---
 
-## Installation & Setup
+## Configuration
 
-### 1. Clone and Create Environment
-```bash
-cd financial-qa-system
-python -m venv venv
-# Windows:
-venv\Scripts\activate
-# Mac/Linux:
-source venv/bin/activate
-```
+Copy the template and (optionally) add a key:
 
-### 2. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Configure API Keys (Optional)
 ```bash
 cp .env.example .env
-# Edit .env and add OPENAI_API_KEY for GPT-4o-mini answers
-# Leave empty for free local mode (retrieval-only, no generation cost)
 ```
+
+```ini
+# .env — all keys optional
+GROQ_API_KEY=          # free at console.groq.com/keys → real LLM answers (Llama 3.3 70B)
+OPENAI_API_KEY=        # alternative (GPT-4o-mini)
+LLM_PROVIDER=auto      # auto = Groq if set, else OpenAI, else local
+USE_LOCAL_MODELS=true  # free local MiniLM embeddings (recommended)
+```
+
+| Mode | Setup | Answers |
+|---|---|---|
+| **Free local** (default) | no key | Returns the most relevant retrieved passage |
+| **Free + Groq** | `GROQ_API_KEY` | Llama 3.3 70B writes a grounded, cited answer |
+| **OpenAI** | `OPENAI_API_KEY` | GPT-4o-mini writes the answer |
+
+Embeddings always run on the free local MiniLM model, so retrieval costs nothing in every mode.
 
 ---
 
 ## Usage
 
-### Web Interface (Recommended for Demo)
+### Web app (recommended)
 ```bash
-py -3.13 -m streamlit run app.py
+streamlit run app.py
+```
+Upload a PDF → **Index** → ask questions → grounded answers with page citations. Tabs also show live **Evaluation Results** and **System Internals** (prompt, architecture).
+
+### Terminal demo
+```bash
+python demo.py          # NLP + RAG + evaluation experiments with formatted tables
 ```
 
-**Features:**
-- Upload any financial PDF
-- Watch real-time indexing progress
-- Ask questions in plain English
-- View grounded answers with page citations and relevance scores
-- Switch to Evaluation tab to see experiment results
-- Switch to System Internals tab to view prompt engineering examples
-
-### Terminal Demo
+### REST API
 ```bash
-py -3.13 -X utf8 demo.py
-# Shows NLP pipeline, RAG pipeline, evaluation experiments with formatted tables
+python main.py          # FastAPI docs at http://localhost:8000/docs
 ```
+Endpoints: `POST /api/v1/ingest`, `POST /api/v1/ask`, `GET /api/v1/documents`, `GET /api/v1/health`
 
-### REST API Server
+### Run the evaluations
 ```bash
-python main.py
-# API docs at http://localhost:8000/docs
-```
-
-**Endpoints:**
-- `POST /api/v1/ingest` — Upload and index a PDF
-- `POST /api/v1/ask` — Ask a question
-- `GET /api/v1/documents` — List indexed documents
-- `GET /api/v1/health` — System status
-
-### Command-Line (Direct Python)
-```bash
-python pipeline.py apple_10k_2023.pdf "What was the total revenue in fiscal 2023?"
+python run_evaluation.py --save   # saves JSON to evaluation/results/
 ```
 
 ---
 
 ## Evaluation & Results
 
-Three evaluation experiments with **live results** in the Streamlit app:
+Evaluated on **50 real Q&A pairs** sampled (seed 42) from the `financial-qa-10K` dataset.
 
-### Experiment 1: Embedding Baseline Comparison
-Compares TF-IDF, Word2Vec, and SentenceTransformer on 50 financial-qa-10K questions:
+### Experiment 1 — Embedding retrieval (gold source-passage)
 
-| Method | Precision@3 | MRR | Query Time |
+| Method | Hit@1 | Hit@3 | MRR |
 |---|---|---|---|
-| TF-IDF | 0.620 | 0.963 | 10.09 ms |
-| Word2Vec | 0.447 | 0.717 | 5.57 ms |
-| **MiniLM-L6-v2** | **0.580** | **1.000** | 177.19 ms |
+| TF-IDF | 0.940 | 1.000 | 0.963 |
+| Word2Vec | 0.640 | 0.760 | 0.717 |
+| **SentenceTransformer (MiniLM-L6-v2)** | **1.000** | **1.000** | **1.000** |
 
-**Key Finding:** Sentence-transformers achieve perfect (1.000) MRR — correct document always ranked first.
+The semantic model retrieves the exact source passage **first for every query**; TF-IDF is a strong lexical baseline; Word2Vec is weakest.
 
-### Experiment 2: RAG vs No-RAG
-Compares three answer strategies:
+### Experiment 2 — RAG vs No-RAG (Keyword Hit Rate)
 
-| Strategy | Keyword Hit Rate | Faithfulness | Hallucinations |
-|---|---|---|---|
-| No-RAG (LLM only) | 0.008 | 1.000 | 0/50 |
-| Random Context | 0.133 | 1.000 | 0/50 |
-| **RAG (Proposed)** | **0.840** | **1.000** | **0/50** |
+| Strategy | Keyword Hit Rate |
+|---|---|
+| No-RAG (LLM only) | 0.008 |
+| Random Context | 0.133 |
+| **RAG (proposed)** | **0.840** |
 
-**Key Finding:** RAG substantially improves keyword grounding while preserving zero hallucinations in the saved 50-sample run.
+Relevant retrieved context is decisive — RAG recovers 84% of gold-answer keywords vs under 1% with no grounding.
 
-### Experiment 3: Full Embedding Benchmark
-Comprehensive metrics for all models (P₁, MRR, NDCG₃, separability gap).
-
-**Run evaluations:**
-```bash
-python run_evaluation.py --save
-# Results saved to evaluation/results/evaluation_TIMESTAMP.json
-```
+### Experiment 3 — Intrinsic embedding benchmark
+Separability gap, P₁, MRR, NDCG₃ on curated probe pairs (MiniLM leads on all).
 
 ---
 
@@ -177,191 +141,95 @@ python run_evaluation.py --save
 
 ```
 financial-qa-system/
-├── README.md              # This file
-├── .env.example          # Environment template
-├── requirements.txt      # Python 3.13+ dependencies
+├── README.md            # This file
+├── DEPLOY.md            # Free deployment guide (Streamlit Cloud / HF Spaces)
+├── .env.example         # Environment template
+├── requirements.txt     # Python 3.13 dependencies
 │
-├── app.py                # Streamlit web UI (main entry point)
-├── demo.py               # Terminal demonstration with formatted tables
-├── main.py               # FastAPI REST API server
-├── pipeline.py           # High-level RAG pipeline functions
-├── config.py             # Centralized configuration
+├── app.py               # Streamlit web app (main entry point, deployed live)
+├── demo.py              # Terminal demonstration
+├── main.py              # FastAPI REST API server
+├── pipeline.py          # High-level RAG pipeline (ingest + answer)
+├── config.py            # Configuration + LLM provider resolution
 │
-├── ingestion/            # Phase 1: PDF → Chunks → Embeddings
-│   ├── pdf_loader.py     # pdfplumber text & table extraction
-│   ├── text_chunker.py   # 800-token chunking with 150-token overlap
-│   └── embedder.py       # MiniLM-L6-v2 or OpenAI embeddings
+├── ingestion/           # Phase 1: PDF → chunks → embeddings
+│   ├── pdf_loader.py    # pdfplumber text & table extraction
+│   ├── text_chunker.py  # 800-token chunking, 150-token overlap
+│   └── embedder.py      # MiniLM-L6-v2 (local) or OpenAI embeddings
+├── retrieval/
+│   ├── vector_store.py  # ChromaDB interface (add, cosine search, delete)
+│   └── retriever.py     # High-level retrieval API
+├── generation/
+│   ├── prompt_builder.py # 7-rule system prompt + few-shot examples
+│   └── qa_chain.py       # Groq/OpenAI LLM + local fallback
+├── api/
+│   ├── routes.py        # FastAPI endpoints
+│   └── schemas.py       # Pydantic request/response models
+├── evaluation/          # Three experiments on the real dataset
+│   ├── dataset_loader.py        # Loads/caches financial-qa-10K
+│   ├── baseline_comparison.py   # TF-IDF vs Word2Vec vs MiniLM
+│   ├── rag_vs_norag.py          # RAG vs No-RAG vs Random Context
+│   ├── embedding_benchmark.py   # P@K, MRR, NDCG, separability
+│   └── results/                 # Saved JSON results (read by the app)
 │
-├── retrieval/            # Similarity Search
-│   ├── vector_store.py   # ChromaDB interface (CRUD + cosine search)
-│   └── retriever.py      # High-level retrieval API
-│
-├── generation/           # Phase 2: Question → Answer
-│   ├── prompt_builder.py # System prompt (7 critical rules), few-shot examples
-│   └── qa_chain.py       # GPT-4o-mini integration + LocalQAChain fallback
-│
-├── api/                  # REST API (FastAPI)
-│   ├── routes.py         # Endpoints: /ingest, /ask, /documents, /health
-│   └── schemas.py        # Pydantic models for request/response validation
-│
-├── evaluation/           # Three evaluation experiments
-│   ├── baseline_comparison.py    # TF-IDF vs Word2Vec vs MiniLM
-│   ├── rag_vs_norag.py           # RAG vs No-RAG vs Random Context
-│   ├── embedding_benchmark.py    # P@K, MRR, NDCG@3, separability, latency
-│   ├── run_evaluation.py         # Entry point for all experiments
-│   └── results/                  # Timestamped JSON results
-│
-├── notebooks/            # Jupyter notebooks (documentation + walkthrough)
-│   └── financial_qa_walkthrough.ipynb  # 10-section interactive demo
-│
-├── report/               # Final Report (LaTeX → PDF)
-│   ├── main.tex          # 19-page LaTeX source
-│   └── main.pdf          # Compiled PDF report
-│
-├── presentation/         # Video presentation materials
-│   ├── Financial_QA_Presentation.pptx  # 11 slides, 16:9 format
-│   ├── Financial_QA_Presentation.pdf   # PDF backup of slides
-│   ├── SPEAKER_SCRIPT.md               # 5-minute narration script
-│   └── build_presentation.py           # Slide generator (python-pptx)
-│
-├── tests/                # Unit & integration tests
-│   └── test_pipeline.py  # pytest-based tests
-│
-└── data/
-    └── uploads/          # Temporary PDF storage during indexing
-```
-
----
-
-## Video Presentation
-
-**Files:** `presentation/Financial_QA_Presentation.pptx` + `SPEAKER_SCRIPT.md`
-
-**11-slide deck (5:00 total):**
-1. Title & Course Info (0:15)
-2. Problem & Motivation (0:30)
-3. Proposed Solution — RAG (0:25)
-4. Three AI Techniques (0:35)
-5. System Architecture (0:30)
-6. Implementation Stack (0:25)
-7. **LIVE DEMO** — Streamlit app (1:00)
-8. Experiment 1 Results (0:25)
-9. Experiment 2 Results (0:25)
-10. Conclusions & Future Work (0:20)
-11. Thank You (0:10)
-
-**Recording checklist:**
-- [ ] Pre-index a financial PDF (saves time during demo)
-- [ ] Test Streamlit app: `py -3.13 -m streamlit run app.py`
-- [ ] Record at 1080p using OBS Studio or Zoom
-- [ ] Each team member narrates 2–3 slides
-- [ ] Export as MP4, upload to YouTube/Google Drive
-- [ ] Share video link in the final report submission
-
----
-
-## AI Techniques Implemented
-
-| Technique | Files | Key Implementation |
-|---|---|---|
-| **NLP: Text Preprocessing** | `ingestion/pdf_loader.py` | Ligature fixing, page number removal, table extraction via pdfplumber |
-| **NLP: Word Embeddings** | `ingestion/embedder.py` | Word2Vec (skip-gram, d=100) baseline + TF-IDF (sparse) baseline + SentenceTransformer (proposed) |
-| **NLP: Text Chunking** | `ingestion/text_chunker.py` | RecursiveCharacterTextSplitter, 800 tokens, 150-token overlap |
-| **LLM: Transformer Decoder** | `generation/qa_chain.py` | GPT-4o-mini (OpenAI API) + LocalQAChain fallback (free) |
-| **Prompt Engineering** | `generation/prompt_builder.py` | 7-rule system prompt, chain-of-thought, 2-shot in-context examples |
-| **Vector Similarity Search** | `retrieval/vector_store.py` | ChromaDB with cosine ANN, top-K retrieval |
-
----
-
-## Running Tests
-
-```bash
-# All tests
-pytest tests/ -v
-
-# Only evaluation tests
-pytest tests/test_pipeline.py::TestEvaluation -v
-
-# With coverage
-pytest tests/ --cov=. --cov-report=html
+├── notebooks/financial_qa_walkthrough.ipynb   # Interactive walkthrough
+├── report/              # Final report (main.tex → main.pdf)
+├── presentation/        # Slides (.pptx/.pdf) + speaker script
+├── tests/test_pipeline.py
+├── Dockerfile           # Container build (for HF Spaces / any Docker host)
+└── data/uploads/        # Temporary PDF storage
 ```
 
 ---
 
 ## Deployment
 
-### Docker
-```bash
-docker build -t financial-qa .
-docker run -p 8501:8501 --env-file .env financial-qa streamlit run app.py
-```
+The app is deployed on **Streamlit Community Cloud** (free). To deploy your own copy, see **`DEPLOY.md`** — in short:
 
-### Railway (Cloud)
-1. Push repo to GitHub
-2. Connect on railway.app
-3. Set `OPENAI_API_KEY` environment variable
-4. Railway auto-detects Python and deploys
+1. Push the repo to GitHub.
+2. On [share.streamlit.io](https://share.streamlit.io): New app → pick the repo → main file `app.py`.
+3. In **Secrets**, add `GROQ_API_KEY`, `USE_LOCAL_MODELS = "true"`, `LLM_PROVIDER = "auto"`.
+
+`DEPLOY.md` also covers Hugging Face Spaces (more RAM) and the included `Dockerfile`.
+
+> Pushing to the connected GitHub branch **auto-redeploys** the live Streamlit app.
 
 ---
 
-## Free Mode (No API Key)
+## AI Techniques Implemented
 
-The system works completely free using local sentence-transformer embeddings:
-```bash
-# .env
-USE_LOCAL_MODELS=true
-# Leave OPENAI_API_KEY blank
-```
-
-**Behavior:** Retrieves relevant chunks and returns them directly (no LLM generation). Perfect for demo purposes.
-
-**With API key:** Uses GPT-4o-mini to synthesise grounded answers from retrieved chunks.
+| Technique | File | Implementation |
+|---|---|---|
+| NLP — preprocessing | `ingestion/pdf_loader.py` | Ligature fixing, page-number removal, table extraction |
+| NLP — word embeddings | `evaluation/baseline_comparison.py` | Word2Vec (skip-gram) + TF-IDF baselines vs SentenceTransformer |
+| NLP — chunking | `ingestion/text_chunker.py` | RecursiveCharacterTextSplitter, 800 tok / 150 overlap |
+| LLM generation | `generation/qa_chain.py` | Groq (Llama 3.3 70B) / OpenAI GPT-4o-mini + local fallback |
+| Prompt engineering | `generation/prompt_builder.py` | 7-rule system prompt, chain-of-thought, 2-shot in-context |
+| Vector search | `retrieval/vector_store.py` | ChromaDB cosine ANN, top-K retrieval |
 
 ---
 
 ## Troubleshooting
 
-**Q: "ModuleNotFoundError: No module named X"**
-```bash
-pip install -r requirements.txt
-```
-
-**Q: "OPENAI_API_KEY not set"**
-- Either set in `.env` file or leave blank to use free local mode
-
-**Q: Streamlit app won't start**
-```bash
-# Use explicit Python 3.13 with UTF-8
-py -3.13 -X utf8 -m streamlit run app.py
-```
-
-**Q: PDF indexing is slow**
-- First run generates embeddings (~1–2 min for 100 pages)
-- Subsequent queries are instant (cached in ChromaDB)
+| Problem | Fix |
+|---|---|
+| `ModuleNotFoundError` | `pip install -r requirements.txt` |
+| App falls back to local mode | Add `GROQ_API_KEY` to `.env` (or the app sidebar) |
+| First answer is slow (~20–30 s) | MiniLM model downloads once, then it's fast |
+| Switched embedding mode | Delete `data/chroma_db/` and re-index |
 
 ---
 
-## Citation & References
+## References
 
-This project builds on:
-- **RAG:** Lewis et al. (2020) — "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks"
-- **Sentence-Transformers:** Reimers & Gurevych (2019) — "Sentence-BERT"
-- **Prompt Engineering:** Wei et al. (2022) — "Chain-of-Thought Prompting"
-- **Word Embeddings:** Mikolov et al. (2013) — "Efficient Estimation of Word Representations"
+- **RAG:** Lewis et al. (2020) — *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks*
+- **Sentence-Transformers:** Reimers & Gurevych (2019) — *Sentence-BERT*
+- **Chain-of-Thought:** Wei et al. (2022)
+- **Word2Vec:** Mikolov et al. (2013)
+- **Dataset:** `virattt/financial-qa-10K` (Hugging Face)
 
 Full references in `report/main.pdf`.
 
 ---
 
-## License
-
-Academic project for EC7203 Advanced Artificial Intelligence. All code is provided for educational purposes.
-
----
-
-## Contact & Support
-
-- **Final Report:** `report/main.pdf`
-- **Evaluation Results:** `evaluation/results/evaluation_*.json`
-- **Slides:** `presentation/Financial_QA_Presentation.pptx`
-- **Speaker Notes:** `presentation/SPEAKER_SCRIPT.md`
+*Academic project for EC7203 Advanced Artificial Intelligence — educational use.*

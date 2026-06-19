@@ -67,12 +67,15 @@ data/chroma_db/
 *.sqlite
 *.sqlite3
 
-# Timestamped evaluation outputs
-evaluation/results/evaluation_*.json
+# Hugging Face model/dataset cache
+.cache/
 
-# Streamlit
-.streamlit/
-.streamlit/config.toml
+# NOTE: evaluation/results/*.json are intentionally committed — the web app
+# reads them to render the Evaluation tab, and they are the project's research
+# findings deliverable. Do not ignore them.
+
+# Streamlit (local config + secrets — never commit secrets)
+.streamlit/secrets.toml
 
 # PDFs (except the final report)
 *.pdf
