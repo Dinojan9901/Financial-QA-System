@@ -1,0 +1,39 @@
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python caches
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Version control
+.git/
+.gitignore
+
+# Secrets (provided as Railway env vars, never baked into the image)
+.env
+
+# Local runtime data (ephemeral; rebuilt at runtime)
+data/uploads/
+data/chroma_db/
+.cache/
+
+# Large artifacts not needed by the running app
+*.pdf
+report/
+presentation/
+notebooks/
+*.aux
+*.log
+*.out
+*.toc
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

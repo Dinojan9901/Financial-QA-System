@@ -190,6 +190,24 @@ def run_rag_vs_norag(openai_key: Optional[str] = None, verbose: bool = True) -> 
     random.seed(42)
     use_llm = openai_key is not None
 
+    # Use the real financial-qa-10K dataset (falls back to built-in chunks
+    # if the Hugging Face Hub is unreachable offline).
+    global DOCUMENT_CHUNKS, EVAL_QUESTIONS
+    try:
+        from evaluation.dataset_loader import load_financial_qa
+        items = load_financial_qa()
+        if items:
+            DOCUMENT_CHUNKS = [it["relevant_passage"] for it in items]
+            EVAL_QUESTIONS = [
+                {"question": it["question"], "keywords": it["keywords"],
+                 "relevant_chunks": [i]}
+                for i, it in enumerate(items)
+            ]
+            print(f"[dataset] Using {len(items)} real Q&A pairs from "
+                  f"virattt/financial-qa-10K (SEC 10-K filings)")
+    except Exception as e:
+        print(f"[dataset] HF dataset unavailable ({e}); using built-in sample chunks")
+
     strategy_results: Dict[str, Dict] = {
         "No-RAG": {"keyword_hits": [], "faithfulness": [], "hallucination_count": 0},
         "Random-Context": {"keyword_hits": [], "faithfulness": [], "hallucination_count": 0},

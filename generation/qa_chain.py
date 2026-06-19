@@ -1,7 +1,10 @@
 """
 QA Chain — end-to-end: retrieved chunks → grounded LLM answer.
 
-Uses GPT-4o-mini (cheap, fast, great for extraction tasks).
+Generation runs through any OpenAI-compatible provider:
+  • Groq   (free, default when GROQ_API_KEY is set) — e.g. Llama 3.3 70B
+  • OpenAI (GPT-4o-mini) when OPENAI_API_KEY is set
+  • Local  retrieval-only fallback when no key is configured
 Temperature=0.1 keeps answers factual, not creative.
 """
 
@@ -9,24 +12,27 @@ import os
 from typing import List, Dict
 
 from generation.prompt_builder import build_qa_prompt
-from config import LLM_MODEL, LLM_TEMPERATURE, LLM_MAX_TOKENS, OPENAI_API_KEY
+from config import resolve_llm_provider, LLM_TEMPERATURE, LLM_MAX_TOKENS
 
 
 class FinancialQAChain:
     """
     Takes a question + retrieved context chunks and returns a grounded answer
-    from the LLM, plus source citations and token usage stats.
+    from the configured LLM (Groq or OpenAI), plus citations and token usage.
     """
 
-    def __init__(self, model: str = LLM_MODEL):
+    def __init__(self, model: str = None):
         from openai import OpenAI
-        if not OPENAI_API_KEY:
+        provider, api_key, base_url, default_model = resolve_llm_provider()
+        if not api_key:
             raise EnvironmentError(
-                "OPENAI_API_KEY is required for answer generation. "
-                "Set it in .env or use the local-model demo mode."
+                "No LLM API key configured. Set GROQ_API_KEY (free) or "
+                "OPENAI_API_KEY in .env, or use local retrieval-only mode."
             )
-        self.client = OpenAI(api_key=OPENAI_API_KEY)
-        self.model = model
+        # Both Groq and OpenAI use the OpenAI SDK; only base_url/model differ.
+        self.client = OpenAI(api_key=api_key, base_url=base_url)
+        self.provider = provider
+        self.model = model or default_model
 
     def answer(
         self,
@@ -108,9 +114,11 @@ class LocalQAChain:
 
 
 def get_qa_chain():
-    """Factory: returns the right chain based on config."""
-    from config import USE_LOCAL_MODELS
-    if USE_LOCAL_MODELS or not OPENAI_API_KEY:
-        print("[qa_chain] Using LocalQAChain (no OpenAI key / local mode)")
+    """Factory: pick the real LLM chain if a provider key is configured
+    (evaluated live), else the free local retrieval-only fallback."""
+    provider, api_key, _, model = resolve_llm_provider()
+    if provider == "local" or not api_key:
+        print("[qa_chain] Using LocalQAChain (no LLM key — retrieval-only mode)")
         return LocalQAChain()
+    print(f"[qa_chain] Using {provider} LLM for generation: {model}")
     return FinancialQAChain()

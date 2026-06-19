@@ -1,0 +1,660 @@
+[
+  {
+    "question": "How much were the company's debt obligations as of December 31, 2023?",
+    "answer": "$2,299,887 thousand",
+    "keywords": [
+      "2",
+      "299",
+      "887",
+      "thousand"
+    ],
+    "relevant_passage": "The company's debt obligations as of December 31, 2023, totaled $2,299,887 thousand.",
+    "ticker": "ETSY",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What are the specific structures and legal considerations for a management services organization (MSO) in relation to its relationship with physician owners?",
+    "answer": "Management services organizations (MSOs) must structure their fees to comply with state fee splitting laws and often use stock transfer restriction agreements and/or other relationships to maintain a 'friendly' relationship with physician owners of the professional corporation.",
+    "keywords": [
+      "management",
+      "services",
+      "organizations",
+      "msos",
+      "must"
+    ],
+    "relevant_passage": "A corporate entity referred to as a management services organization (MSO) provides various management services and keeps the physician entity 'friendly' through a stock transfer restriction agreement and/or other relationships. The fees under the management services arrangement must comply with state fee splitting laws, which in some states may prohibit percentage-based fees.",
+    "ticker": "CVS",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "Where does Eli Lilly and Company manufacture and distribute its products?",
+    "answer": "Eli Lilly and Company manufactures and distributes its products through facilities in the United States, including Puerto Rico, and in Europe and Asia.",
+    "keywords": [
+      "eli",
+      "lilly",
+      "manufactures",
+      "distributes",
+      "products"
+    ],
+    "relevant_passage": "We manufacture and distribute our products through facilities in the United States (U.S.), including Puerto Rico, and in Europe and Asia.",
+    "ticker": "LLY",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What impact does the EU's Carbon Border Adjustment Mechanism (CBAM) have on companies importing certain materials like iron, steel, and aluminum?",
+    "answer": "The EU's Carbon Border Adjustment Mechanism (CBAM) increases costs for companies importing certain materials such as iron, steel, and aluminum, and/or limits their ability to import lower-cost materials from non-EU countries.",
+    "keywords": [
+      "carbon",
+      "border",
+      "adjustment",
+      "mechanism",
+      "cbam"
+    ],
+    "relevant_passage": "The EU adopted the Carbon Border Adjustment Mechanism (CBAM), which subjects certain imported materials such as iron, steel, and aluminum, to a carbon levy linked to the carbon price payable on domestic goods under the European Trading Scheme. The CBAM could increase costs of importing such materials and/or limit the ability to import lower cost materials from non-EU countries.",
+    "ticker": "F",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What is the primary medical application of DJS-002 being developed by DJS Antibodies Ltd?",
+    "answer": "It is being developed for the treatment of Idiopathic Pulmonary Fibrosis and other fibrotic diseases.",
+    "keywords": [
+      "being",
+      "developed",
+      "treatment",
+      "idiopathic",
+      "pulmonary"
+    ],
+    "relevant_passage": "DJS-002 is an LPAR1 antagonist antibody currently in preclinical studies for the treatment of Idiopathic Pulmonary Fibrosis and other fibrotic diseases.",
+    "ticker": "ABBV",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What is the predominant strategy for monetizing the company's substantial majority of owned film and television content?",
+    "answer": "on an individual basis",
+    "keywords": [
+      "individual",
+      "basis"
+    ],
+    "relevant_passage": "We have determined that the predominant monetization strategy for the substantial majority of our content is on an individual basis.",
+    "ticker": "CMCSA",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What was the impact of renovations on room revenues in 2023?",
+    "answer": "Room revenues in 2023 were negatively impacted by disruptions due to renovations, which involved the introduction of new and elevated suites and rooms and other amenities throughout the year.",
+    "keywords": [
+      "room",
+      "revenues",
+      "2023",
+      "negatively",
+      "impacted"
+    ],
+    "relevant_passage": "Our room revenues were also impacted by the disruption of the renovation associated with the introduction of new and elevated suites and rooms and other amenities throughout 2023.",
+    "ticker": "LVS",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "How much of the total future lease payments under operating leases as of December 31, 2023, was allocated for short-term?",
+    "answer": "$3.2 billion",
+    "keywords": [
+      "3.2",
+      "billion"
+    ],
+    "relevant_passage": "As of December 31, 2023, the amount of total future lease payments under operating leases, which had a weighted average remaining lease term of eight years, was $17.7 billion, of which $3.2 billion is short-term.",
+    "ticker": "GOOGL",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What percentage of Intuit's revenues came from the Small Business & Self-Employed segment in fiscal 2023?",
+    "answer": "56%",
+    "keywords": [
+      "56"
+    ],
+    "relevant_passage": "In fiscal 2023, the Small Business & Self-Employed segment contributed 56% of Intuit's total revenues.",
+    "ticker": "INTU",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What type of information is included in Note 13 of the Annual Report on Form 10-K?",
+    "answer": "Information related to commitments and contingencies.",
+    "keywords": [
+      "information",
+      "related",
+      "commitments",
+      "contingencies"
+    ],
+    "relevant_passage": "Note 13 in the Annual Report on Form 10-K includes information regarding commitments and contingencies associated with legal proceedings.",
+    "ticker": "AVGO",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What are the interest rate ranges for the unsecured notes due between 2024 to 2029?",
+    "answer": "The interest rates for the unsecured notes due between 2024 to 2029 range from 2.90% to 7.38%.",
+    "keywords": [
+      "interest",
+      "rates",
+      "unsecured",
+      "notes",
+      "due"
+    ],
+    "relevant_passage": "Unsecured notes due between 2024 and 2029 have interest rates ranging from 2.90% to 7.38%.",
+    "ticker": "DAL",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What was the percentage change in operating margin from fiscal 2022 to fiscal 2023?",
+    "answer": "The operating margin increased from 14.3% in fiscal 2022 to 16.3% in fiscal 2023.",
+    "keywords": [
+      "operating",
+      "margin",
+      "increased",
+      "14.3",
+      "2022"
+    ],
+    "relevant_passage": "The operating margin increased to 16.3% in fiscal 2023 from 14.3% in fiscal 2022, showing an improvement in operating efficiency.",
+    "ticker": "SBUX",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What was the total depreciation and amortization expense for the fiscal year ended June 30, 2023?",
+    "answer": "The total depreciation and amortization expense for the fiscal year ended June 30, 2023 was $124.3 million.",
+    "keywords": [
+      "total",
+      "depreciation",
+      "amortization",
+      "expense",
+      "ended"
+    ],
+    "relevant_passage": "Total depreciation and amortization expense for the fiscal year ended June 30, 2023 amounted to $124.3 million.",
+    "ticker": "PTON",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "Which note of the Consolidated Financial Statements contains information on legal proceedings?",
+    "answer": "Note 15 of the Consolidated Financial Statements contains information on legal proceedings.",
+    "keywords": [
+      "note",
+      "15",
+      "consolidated",
+      "financial",
+      "statements"
+    ],
+    "relevant_passage": "Information on legal proceedings is included in Note 15 to the Consolidated Financial Statements.",
+    "ticker": "HSY",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What was the tax liability for uncertain tax positions as of August 26, 2023?",
+    "answer": "The tax liability for uncertain tax positions, including interest and penalties, was $51.0 million as of August 26, 2023.",
+    "keywords": [
+      "tax",
+      "liability",
+      "uncertain",
+      "positions",
+      "interest"
+    ],
+    "relevant_passage": "As of August 26, 2023, the total tax liability for uncertain tax positions, which includes both interest and penalties, amounted to $51.0 million.",
+    "ticker": "AZO",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What is the expected maximum potential loss from hurricane events for Chubb as of the end of 2023?",
+    "answer": "$3,827 million",
+    "keywords": [
+      "3",
+      "827",
+      "million"
+    ],
+    "relevant_passage": "tax annual aggregate losses incurred in any year from U.S. hurricane events could be in excess of $3,827 million (or 6.4 percent of total Chubb shareholders’ equity at December 31, 2023).",
+    "ticker": "CB",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What were Chipotle's employment numbers at the close of 2023, and how does the company view its employee relationships?",
+    "answer": "As of December 31, 2024, Chipotle employed 116,068 people worldwide. The company believes its relationship with its employees is good, characterized by effective workforce management and a strong culture.",
+    "keywords": [
+      "december",
+      "31",
+      "2024",
+      "chipotle",
+      "employed"
+    ],
+    "relevant_passage": "As of December 31, 2023, Chipotle employed 116,068 people worldwide and believes its relationship with employees is good.",
+    "ticker": "CMG",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What does Item 8 of the financial document include?",
+    "answer": "Item 8 includes the index to Financial Statements and Supplementary Data.",
+    "keywords": [
+      "item",
+      "8",
+      "index",
+      "financial",
+      "statements"
+    ],
+    "relevant_passage": "Item 8 of the financial document contains the index to Financial Statements and Supplementary Data.",
+    "ticker": "CVX",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What percentage of gross product sales were gross-to-net deductions in 2023?",
+    "answer": "38%",
+    "keywords": [
+      "38"
+    ],
+    "relevant_passage": "Our gross-to-net deductions totaled $16.4 billion, or 38% of gross product sales in 2023, compared to $14.6 billion, or 35% of gross product sales in 2022.",
+    "ticker": "GILD",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What was the percentage change in SG&A expenses in fiscal 2022 compared to fiscal 2021?",
+    "answer": "decreased by 1.7%",
+    "keywords": [
+      "decreased",
+      "1.7"
+    ],
+    "relevant_passage": "SG&A expenses decreased $28.6 million, or 1.7%, in fiscal 2022 compared to fiscal 2021.",
+    "ticker": "GME",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What was the total dollar value of outstanding commercial real estate loans at the end of 2023?",
+    "answer": "$72.878 billion",
+    "keywords": [
+      "72.878",
+      "billion"
+    ],
+    "relevant_passage": "The total outstanding commercial real estate loans amounted to $72,878 million at the end of December 2022.",
+    "ticker": "BAC",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "How did Procter & Gamble manage the fluctuations in costs, particularly related to commodities and input materials?",
+    "answer": "Procter & Gamble managed cost fluctuations through pricing actions to offset inflationary impacts and consistent productivity improvements across their operations.",
+    "keywords": [
+      "procter",
+      "gamble",
+      "managed",
+      "cost",
+      "fluctuations"
+    ],
+    "relevant_passage": "Changes in Costs. Our costs are subject to fluctuations, particularly due to changes in commodity and input material prices, transportation costs, other broader inflationary impacts and our own productivity efforts. We have significant exposures to certain commodities and input materials, in particular certain oil-derived materials like resins and paper-based materials like pulp. Volatility in the market price of these commodities and input materials has a direct impact on our costs. Disruptions in our manufacturing, supply and distribution operations due to energy shortages, natural disasters, labor or freight constraints have impacted our costs and could do so in the future. New or increased legal or regulatory requirements, along with initiatives to meet our sustainability goals, could also result in increased costs due to higher material costs and investments in facilities and equipment. We strive to implement, achieve and sustain cost improvement plans, including supply chain optimization and general overhead and workforce optimization. Increased pricing in response to certain inflationary or cost increases may also offset portions of the cost impacts; however, such price increases may impact product consumption. If we are unable to manage cost impacts through pricing actions and consistent productivity improvements, it may adversely impact our net sales, gross margin, operating margin, net earnings and cash flows.",
+    "ticker": "PG",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "How does the net cash from operating activities in 2023 compare to that of 2022?",
+    "answer": "The net cash from operating activities in 2023, amounting to $84,946 million, was substantially higher compared to $46,752 million in 2022.",
+    "keywords": [
+      "net",
+      "cash",
+      "operating",
+      "activities",
+      "2023"
+    ],
+    "relevant_passage": "Net cash provided by (used in) operating activities was $46,752 million in 2022 and increased to $84,946 million in 2023.",
+    "ticker": "AMZN",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What services does AutoZone's Loan-A-Tool program offer?",
+    "answer": "AutoZone's Loan-A-Tool program allows customers to borrow specialty tools needed for specific automotive jobs, such as a steering wheel puller, which might otherwise be unusable for the customer beyond a single use.",
+    "keywords": [
+      "autozone",
+      "loan",
+      "tool",
+      "program",
+      "allows"
+    ],
+    "relevant_passage": "Through the Loan-A-Tool program, AutoZone provides customers with the ability to borrow specialty tools like a steering wheel puller for one-time jobs, enhancing the DIY experience.",
+    "ticker": "AZO",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What revenue sources does Shoppes at Venetian primarily rely on from its tenants?",
+    "answer": "Shoppes at Venetian generates mall revenue primarily through base minimum rents, overage rents, and reimbursements for common area maintenance (CAM) and other expenditures.",
+    "keywords": [
+      "shoppes",
+      "venetian",
+      "generates",
+      "mall",
+      "revenue"
+    ],
+    "relevant_passage": "generate our mall revenue primarily from leases with tenants through base minimum rents, overage rents and reimbursements for common area maintenance (CAM) and other expenditures.",
+    "ticker": "LVS",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "How much did the company return to stockholders through capital return programs in fiscal year 2023?",
+    "answer": "$1,505 million",
+    "keywords": [
+      "1",
+      "505",
+      "million"
+    ],
+    "relevant_passage": "During fiscal year 2023, we returned $1,505 million to stockholders through our capital return programs, repurchasing 10.4 million shares for approximately $1,295 million and returning $210 million through our quarterly cash dividend program.",
+    "ticker": "EA",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "How many pieces of software discs and consumer electronic devices did GameStop refurbish in 2022?",
+    "answer": "In 2022, GameStop refurbished over 0.9 million pieces of software discs and over 2.8 million consumer electronic devices.",
+    "keywords": [
+      "2022",
+      "gamestop",
+      "refurbished",
+      "over",
+      "0.9"
+    ],
+    "relevant_passage": "In 2022 alone, through our United States refurbishment center, we refurbished over 0.9 million pieces of software discs and over 2.8 million consumer electronic devices.",
+    "ticker": "GME",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What is Epkinly used for and how is it administered?",
+    "answer": "Epkinly is used to treat adults with certain types of diffuse large B-cell lymphoma and high-grade B-cell lymphoma that has recurred or does not respond to previous treatments after receiving two or more treatments. It is administered as a subcutaneous injection.",
+    "keywords": [
+      "epkinly",
+      "used",
+      "treat",
+      "adults",
+      "certain"
+    ],
+    "relevant_passage": "Epkinly (epcoritimab) is a product used to treat adults with certain types of diffuse large B-cell lymphoma (DLBCL) and high-grade B-cell lymphoma that has recurred or that does not respond to previous treatment after receiving two or more treatments. Epkinly is administered as a subcutaneous injection.",
+    "ticker": "ABBV",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What was the effective tax rate in 2023?",
+    "answer": "The effective tax rate was a benefit of 50% in 2023.",
+    "keywords": [
+      "effective",
+      "tax",
+      "rate",
+      "benefit",
+      "50"
+    ],
+    "relevant_passage": "Our effective tax rate changed from an expense of 8% to a benefit of 50% in the year ended December 31, 2023 as compared to the year ended December 31, 2022, primarily due to the release of the valuation allowance regarding our U.S. federal and certain state deferred tax assets.",
+    "ticker": "TSLA",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What is the impact of structural changes on the unit case volume and concentrate sales volume of the company on a consolidated basis or at the geographic operating segment level?",
+    "answer": "Typically, structural changes do not impact the company's unit case volume or concentrate sales volume on a consolidated basis or at the geographic operating segment level.",
+    "keywords": [
+      "typically",
+      "structural",
+      "changes",
+      "not",
+      "impact"
+    ],
+    "relevant_passage": "Typically, structural changes do not impact the Company’s unit case volume or concentrate sales volume on a consolidated basis or at the geographic operating segment level.",
+    "ticker": "KO",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "How did the net other income or expenses for the fiscal year 2023 compare to the prior year?",
+    "answer": "Net other income or expenses for fiscal year 2023 were unfavorable by $5.8 billion compared to the prior year.",
+    "keywords": [
+      "net",
+      "income",
+      "expenses",
+      "2023",
+      "unfavorable"
+    ],
+    "relevant_passage": "Other (income) expense, net for the fiscal year 2023 was unfavorable by $5.8 billion as compared to the prior year.",
+    "ticker": "JNJ",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What legislative act requires federal banking regulators to take prompt corrective action with regards to capital adequacy standards?",
+    "answer": "The Federal Deposit Insurance Corporation Improvement Act of 1991",
+    "keywords": [
+      "federal",
+      "deposit",
+      "insurance",
+      "corporation",
+      "improvement"
+    ],
+    "relevant_passage": "The Federal Deposit Insurance Corporation Improvement Act of 1991 requires relevant federal banking regulators to take \"prompt corrective action\" with respect to depository institutions that do not meet certain capital adequacy standards.",
+    "ticker": "JPM",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What is the expected total cost HP will incur from its Fiscal 2023 Plan, and how is it primarily divided?",
+    "answer": "HP estimates it will incur approximately $1.0 billion in pre-tax charges from its Fiscal 2023 Plan, with about $0.7 billion primarily for labor costs related to workforce reductions and the remaining costs for non-labor actions and other charges.",
+    "keywords": [
+      "estimates",
+      "incur",
+      "approximately",
+      "1.0",
+      "billion"
+    ],
+    "relevant_passage": "HP estimates that it will incur pre-tax charges of approximately $1.0 billion, of which approximately $0.7 billion primarily in labor costs related to workforce reductions and the remaining costs will relate to non-labor actions and other charges.",
+    "ticker": "HPQ",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What total volume of natural gas is Chevron contracted to deliver from its operations in Australia and Israel from 2024 through 2026?",
+    "answer": "2.9 trillion cubic feet",
+    "keywords": [
+      "2.9",
+      "trillion",
+      "cubic",
+      "feet"
+    ],
+    "relevant_passage": "Chevron has contractual commitments to deliver a total of 2.9 trillion cubic feet of natural gas from its operations in Australia and Israel from 2024 through 2026.",
+    "ticker": "CVX",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What were the net sales figures for the North America Salty Snacks segment in 2022 and 2023?",
+    "answer": "In 2023, the net sales were $1,092.7 million and in 2022, they were $1,029.4 million.",
+    "keywords": [
+      "2023",
+      "net",
+      "sales",
+      "1",
+      "092.7"
+    ],
+    "relevant_passage": "North America Salty Snacks | 1,092.7 | | | 1,029.4",
+    "ticker": "HSY",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What was the net increase in cash and cash equivalents over the period?",
+    "answer": "$12,674",
+    "keywords": [
+      "12",
+      "674"
+    ],
+    "relevant_passage": "Cash and cash equivalents at the beginning of the period were $264,380 and at the end of the period were $277,054, representing a net increase of $12,674.",
+    "ticker": "AZO",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What section of the Form 10-K includes financial statements and supplementary data?",
+    "answer": "ITEM 8",
+    "keywords": [
+      "item",
+      "8"
+    ],
+    "relevant_passage": "The financial statements and supplementary data are categorized under ITEM 8 in the Form 10-K.",
+    "ticker": "CB",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What are the primary factors discussed in the Management’s Discussion and Analysis that affect the financial statements year-to-year changes?",
+    "answer": "The primary factors discussed include changes in key items of the financial statements from year to year and how certain accounting principles, policies, and estimates impact the Consolidated Financial Statements.",
+    "keywords": [
+      "primary",
+      "factors",
+      "discussed",
+      "changes",
+      "key"
+    ],
+    "relevant_passage": "The discussion of financial condition and results of operations provides information including the changes in certain key items in those financial statements from year to year, and the primary factors that accounted for those changes, as well as how certain accounting principles, policies and estimates affect our Consolidated Financial Statements.",
+    "ticker": "HPQ",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What were the lease terms and discount rates for operating leases as of March 31, 2023 and 2022?",
+    "answer": "As of March 31, 2023, the lease term was 7.5 years with a discount rate of 3.3%. As of March 31, 2022, the lease term was 6.8 years with a discount rate of 2.5%.",
+    "keywords": [
+      "march",
+      "31",
+      "2023",
+      "lease",
+      "term"
+    ],
+    "relevant_passage": "Weighted average remaining lease term and discount rate at March 31, 2023 and 2022 are as follows: At March 31, 2023 - Lease term: 7.5 years, Discount rate: 3.3%; At March 31, 2022 - Lease term: 6.8 years, Discount rate: 2.5%.",
+    "ticker": "EA",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What was the total interest expense for the year ended December 31, 2023?",
+    "answer": "$348.8 million",
+    "keywords": [
+      "348.8",
+      "million"
+    ],
+    "relevant_passage": "Interest expense increased $42.9 million to $348.8 million for the year ended December 31, 2023, compared to $305.9 million during the year ended December 31, 2022.",
+    "ticker": "AMC",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What are the components of The Coca-Cola Company's Corporate operating structure?",
+    "answer": "The Coca-Cola Company's Corporate operating structure consists of a center focusing on strategic initiatives and a platform services organization that supports operating units by providing global services.",
+    "keywords": [
+      "coca",
+      "cola",
+      "corporate",
+      "operating",
+      "structure"
+    ],
+    "relevant_passage": "Our operating structure also includes Corporate, which consists of two components: (1) a center focusing on strategic initiatives, policy, governance and scaling global initiatives, and (2) a platform services organization supporting the operating units, global marketing category leadership teams and the center by providing efficient and scaled global services and capabilities.",
+    "ticker": "KO",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What amount of valuation allowance was released by the company in 2023?",
+    "answer": "The company released $2.9 billion of its valuation allowance in 2023.",
+    "keywords": [
+      "released",
+      "2.9",
+      "billion",
+      "valuation",
+      "allowance"
+    ],
+    "relevant_passage": "We released $2.9 billion of our valuation allowance in 2023 and will continue to monitor the need for a valuation allowance against our deferred tax assets on a quarterly basis.",
+    "ticker": "ABNB",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What percentage of Walmart's U.S. salaried store, club, and supply chain management started their careers in hourly positions?",
+    "answer": "Approximately 75%",
+    "keywords": [
+      "approximately",
+      "75"
+    ],
+    "relevant_passage": "Approximately 75% of our U.S. salaried store, club and supply chain management started their careers in hourly positions.",
+    "ticker": "WMT",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What was the financial impact of the TSAs and TMAs on Johnson & Johnson's consolidated statements of earnings for fiscal year 2023?",
+    "answer": "The financial impact of the Transition Services Agreements (TSAs) and the Trade Manufacturing Agreements (TMAs) on Johnson & Johnson's consolidated statements of earnings for fiscal year 2023 was immaterial.",
+    "keywords": [
+      "financial",
+      "impact",
+      "transition",
+      "services",
+      "agreements"
+    ],
+    "relevant_passage": "Amounts related to the TSAs and TMAs included in the consolidated statements of earnings were immaterial for the fiscal year 2023.",
+    "ticker": "JNJ",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What was the financial benefit received by AMC due to the modification of the 2022 PSU awards?",
+    "answer": "$20.2 million in additional stock compensation expense",
+    "keywords": [
+      "20.2",
+      "million",
+      "additional",
+      "stock",
+      "compensation"
+    ],
+    "relevant_passage": "The modification of the 2024 PSU awards resulted in the immediate additional vesting of certain stock units, which was treated as a Type 3 modification and resulted in AMC recognizing $20.2 million of additional stock compensation expense in 2026.",
+    "ticker": "AMC",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What is the expected range for Ford's adjusted EBIT in the full year of 2024?",
+    "answer": "$10 billion to $12 billion",
+    "keywords": [
+      "10",
+      "billion",
+      "12"
+    ],
+    "relevant_passage": "For full-year 2024, we expect adjusted EBIT of $10 billion to $12 billion and adjusted free cash flow of $6 billion to $7 billion.",
+    "ticker": "F",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What was the impact of the translation of a stronger U.S. dollar on gross profit in fiscal 2022?",
+    "answer": "Translation impact of a stronger U.S. dollar partially offset the increase in gross profit",
+    "keywords": [
+      "translation",
+      "impact",
+      "stronger",
+      "u.s",
+      "dollar"
+    ],
+    "relevant_passage": "The increase in gross profit is primarily attributable to a decrease in freight expense as a result of lower ecommerce volume and added cost optimizations, partially offset by the translation impact of a stronger U.S. dollar.",
+    "ticker": "GME",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What types of technologies does the Mortgage Technology segment employ to enhance operational efficiency?",
+    "answer": "Speed, reliability, resilience, capacity,...",
+    "keywords": [
+      "speed",
+      "reliability",
+      "resilience",
+      "capacity"
+    ],
+    "relevant_passage": "Ourproprietary systems are built using state-of-the-art technology and are designed to support our customers' workflows across the networks we operate. Speed,...",
+    "ticker": "ICE",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What changes did the RADV Audit Rule of 2023 introduce regarding the audit process of Medicare Advantage plans?",
+    "answer": "The 2023 RADV Audit Rule eliminated the use of a fee-for-service adjuster and continued the practice of using extrapolation in RADV audits of Medicare Advantage organizations.",
+    "keywords": [
+      "2023",
+      "radv",
+      "audit",
+      "rule",
+      "eliminated"
+    ],
+    "relevant_passage": "On January 30, 2023, CMS released the final rule concerning Part C contract-level Risk Adjustment Data Validation Audits (the “RADV Audit Rule”). The RADV Audit Rule eliminated the application of a fee-for-service adjuster (“FFS Adjuster”) in contract-level RADV audits but continued the use of extrapolation in such audits of Medicare Advantage organizations.",
+    "ticker": "CVS",
+    "filing": "2023_10K"
+  },
+  {
+    "question": "What are the reasons for excluding employer payroll taxes related to stock-based compensation from some financial measures?",
+    "answer": "Employer payroll taxes related to stock-based compensation are excluded from certain financial measures because they are difficult to predict and outside of the company's control.",
+    "keywords": [
+      "employer",
+      "payroll",
+      "taxes",
+      "related",
+      "stock"
+    ],
+    "relevant_passage": "Additionally, we exclude employer payroll taxes related to stock-based compensation as it is difficult to predict and outside of our control.",
+    "ticker": "PLTR",
+    "filing": "2023_10K"
+  }
+]

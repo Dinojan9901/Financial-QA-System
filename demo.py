@@ -39,6 +39,19 @@ def section(title):
     print(DIVIDER)
 
 
+def _valid_openai_key():
+    """Return the OpenAI key only if it looks real.
+
+    Ignores an empty value or the placeholder from .env.example
+    (e.g. 'sk-your-key-here') so the demo falls back to free local
+    simulation instead of making a doomed API call.
+    """
+    key = (os.getenv("OPENAI_API_KEY") or "").strip()
+    if not key or "your-key" in key or "your-openai" in key or len(key) < 40:
+        return None
+    return key
+
+
 # ── Demo 1: NLP Pipeline ─────────────────────────────────────────────────────
 
 def demo_nlp():
@@ -176,7 +189,9 @@ def demo_evaluation():
         print(f"{m:<25} {v['avg_precision_at_3']:>8.3f} {v['avg_mrr']:>8.3f}")
 
     print("\n--- Experiment 2: RAG vs No-RAG ---")
-    key = os.getenv("OPENAI_API_KEY") or None
+    key = _valid_openai_key()  # None unless a real (non-placeholder) key is set
+    if key is None:
+        print("(No valid OPENAI_API_KEY found — running in free local simulation mode)")
     r2 = run_rag_vs_norag(openai_key=key, verbose=False)
     print(f"\n{'Strategy':<20} {'KHR':>8} {'Faithfulness':>14} {'Hallucinations':>16}")
     print("-" * 62)

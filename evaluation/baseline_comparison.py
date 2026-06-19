@@ -212,15 +212,77 @@ DISTRACTORS = [
 ]
 
 
+def _get_eval_set():
+    """Load the real financial-qa-10K dataset; fall back to the built-in
+    sample passages if the Hugging Face Hub is unreachable offline."""
+    try:
+        from evaluation.dataset_loader import load_financial_qa
+        items = load_financial_qa()
+        if items:
+            corpus = [q["relevant_passage"] for q in items]
+            questions = [q["question"] for q in items]
+            keyword_sets = [q["keywords"] for q in items]
+            print(f"[dataset] Using {len(items)} real Q&A pairs from "
+                  f"virattt/financial-qa-10K (SEC 10-K filings)")
+            return corpus, questions, keyword_sets
+    except Exception as e:
+        print(f"[dataset] Could not load HF dataset ({e}); "
+              f"falling back to built-in sample passages")
+
+    corpus = [q["relevant_passage"] for q in EVAL_QUESTIONS] + DISTRACTORS
+    questions = [q["question"] for q in EVAL_QUESTIONS]
+    keyword_sets = [q["keywords"] for q in EVAL_QUESTIONS]
+    return corpus, questions, keyword_sets
+
+
+def _evaluate_embedder(embedder, doc_vecs, corpus, questions, keyword_sets,
+                       verbose: bool = False) -> Dict:
+    """Score one embedder against the eval set.
+
+    The gold passage for question *i* is ``corpus[i]`` (index-aligned), so we
+    measure the rank of that exact source passage among all candidates —
+    the standard, label-based retrieval metric. We also report keyword
+    Precision@3 against the gold answer for continuity.
+
+    Returns Hit@1, Hit@3, MRR (gold-passage), Precision@3, and latency.
+    """
+    hit1, hit3, recip, p3s, times = [], [], [], [], []
+    for i, (q, kws) in enumerate(zip(questions, keyword_sets)):
+        t0 = time.perf_counter()
+        q_vec = embedder.embed(q)
+        sims = cosine_similarity([q_vec], doc_vecs)[0]
+        times.append((time.perf_counter() - t0) * 1000)
+
+        order = np.argsort(sims)[::-1]
+        rank = int(np.where(order == i)[0][0]) + 1          # rank of gold passage
+        hit1.append(1.0 if rank == 1 else 0.0)
+        hit3.append(1.0 if rank <= 3 else 0.0)
+        recip.append(1.0 / rank)
+
+        ranked_texts = [corpus[j] for j in order[:5]]
+        p3s.append(precision_at_k(ranked_texts, kws, k=3))
+
+        if verbose:
+            mark = "Y" if rank <= 3 else "N"
+            print(f"  Q: {q[:55]}")
+            print(f"     gold-rank={rank} | Hit@3={mark} | P@3={p3s[-1]:.2f}")
+
+    return {
+        "hit_at_1": round(float(np.mean(hit1)), 3),
+        "hit_at_3": round(float(np.mean(hit3)), 3),
+        "avg_mrr": round(float(np.mean(recip)), 3),
+        "avg_precision_at_3": round(float(np.mean(p3s)), 3),
+        "avg_query_time_ms": round(float(np.mean(times)), 2),
+    }
+
+
 def run_baseline_comparison(verbose: bool = True) -> Dict:
     """
     Run all three embedders on the eval set and compare Precision@3 and MRR.
 
     Returns a results dict suitable for printing / report inclusion.
     """
-    corpus = [q["relevant_passage"] for q in EVAL_QUESTIONS] + DISTRACTORS
-    questions = [q["question"] for q in EVAL_QUESTIONS]
-    keyword_sets = [q["keywords"] for q in EVAL_QUESTIONS]
+    corpus, questions, keyword_sets = _get_eval_set()
 
     results = {}
 
@@ -230,29 +292,8 @@ def run_baseline_comparison(verbose: bool = True) -> Dict:
     print("="*60)
     tfidf = TFIDFEmbedder()
     tfidf.fit(corpus)
-    doc_vecs = tfidf.embed_batch(corpus)
-
-    tfidf_p3, tfidf_mrr, tfidf_time = [], [], []
-    for q, kws in zip(questions, keyword_sets):
-        t0 = time.perf_counter()
-        q_vec = tfidf.embed(q)
-        ranked = retrieve_top_k(q_vec, doc_vecs, corpus, k=5)
-        elapsed = time.perf_counter() - t0
-
-        texts = [r[0] for r in ranked]
-        p3 = precision_at_k(texts, kws, k=3)
-        mrr = mean_reciprocal_rank(texts, kws)
-        tfidf_p3.append(p3); tfidf_mrr.append(mrr); tfidf_time.append(elapsed * 1000)
-
-        if verbose:
-            print(f"  Q: {q[:55]}")
-            print(f"     P@3={p3:.2f} | MRR={mrr:.2f} | Top: '{texts[0][:60]}...'")
-
-    results["TF-IDF"] = {
-        "avg_precision_at_3": round(np.mean(tfidf_p3), 3),
-        "avg_mrr": round(np.mean(tfidf_mrr), 3),
-        "avg_query_time_ms": round(np.mean(tfidf_time), 2),
-    }
+    results["TF-IDF"] = _evaluate_embedder(
+        tfidf, tfidf.embed_batch(corpus), corpus, questions, keyword_sets, verbose)
 
     # ── 2. Word2Vec ───────────────────────────────────────────────────────────
     print("\n" + "="*60)
@@ -260,77 +301,34 @@ def run_baseline_comparison(verbose: bool = True) -> Dict:
     print("="*60)
     w2v = Word2VecEmbedder(vector_size=100)
     w2v.train(corpus)
-    doc_vecs_w2v = w2v.embed_batch(corpus)
-
-    w2v_p3, w2v_mrr, w2v_time = [], [], []
-    for q, kws in zip(questions, keyword_sets):
-        t0 = time.perf_counter()
-        q_vec = w2v.embed(q)
-        ranked = retrieve_top_k(q_vec, doc_vecs_w2v, corpus, k=5)
-        elapsed = time.perf_counter() - t0
-
-        texts = [r[0] for r in ranked]
-        p3 = precision_at_k(texts, kws, k=3)
-        mrr = mean_reciprocal_rank(texts, kws)
-        w2v_p3.append(p3); w2v_mrr.append(mrr); w2v_time.append(elapsed * 1000)
-
-        if verbose:
-            print(f"  Q: {q[:55]}")
-            print(f"     P@3={p3:.2f} | MRR={mrr:.2f} | Top: '{texts[0][:60]}...'")
-
-    results["Word2Vec"] = {
-        "avg_precision_at_3": round(np.mean(w2v_p3), 3),
-        "avg_mrr": round(np.mean(w2v_mrr), 3),
-        "avg_query_time_ms": round(np.mean(w2v_time), 2),
-    }
+    results["Word2Vec"] = _evaluate_embedder(
+        w2v, w2v.embed_batch(corpus), corpus, questions, keyword_sets, verbose)
 
     # ── 3. Sentence-Transformers ──────────────────────────────────────────────
     print("\n" + "="*60)
     print("PROPOSED: Sentence-Transformers all-MiniLM-L6-v2 (Contextual Dense)")
     print("="*60)
     transformer = TransformerEmbedder()
-    doc_vecs_tr = transformer.embed_batch(corpus)
-
-    tr_p3, tr_mrr, tr_time = [], [], []
-    for q, kws in zip(questions, keyword_sets):
-        t0 = time.perf_counter()
-        q_vec = transformer.embed(q)
-        ranked = retrieve_top_k(q_vec, doc_vecs_tr, corpus, k=5)
-        elapsed = time.perf_counter() - t0
-
-        texts = [r[0] for r in ranked]
-        p3 = precision_at_k(texts, kws, k=3)
-        mrr = mean_reciprocal_rank(texts, kws)
-        tr_p3.append(p3); tr_mrr.append(mrr); tr_time.append(elapsed * 1000)
-
-        if verbose:
-            print(f"  Q: {q[:55]}")
-            print(f"     P@3={p3:.2f} | MRR={mrr:.2f} | Top: '{texts[0][:60]}...'")
-
-    results["SentenceTransformer"] = {
-        "avg_precision_at_3": round(np.mean(tr_p3), 3),
-        "avg_mrr": round(np.mean(tr_mrr), 3),
-        "avg_query_time_ms": round(np.mean(tr_time), 2),
-    }
+    results["SentenceTransformer"] = _evaluate_embedder(
+        transformer, transformer.embed_batch(corpus), corpus, questions, keyword_sets, verbose)
 
     # ── Summary Table ─────────────────────────────────────────────────────────
     print("\n" + "="*60)
-    print("SUMMARY — Retrieval Quality Comparison")
+    print("SUMMARY — Retrieval Quality (gold source-passage retrieval)")
     print("="*60)
-    print(f"{'Method':<25} {'Precision@3':>12} {'MRR':>8} {'Query Time':>12}")
-    print("-" * 60)
-    for method, metrics in results.items():
-        print(
-            f"{method:<25} "
-            f"{metrics['avg_precision_at_3']:>12.3f} "
-            f"{metrics['avg_mrr']:>8.3f} "
-            f"{metrics['avg_query_time_ms']:>10.1f}ms"
-        )
-    print("-" * 60)
+    print(f"{'Method':<22}{'Hit@1':>8}{'Hit@3':>8}{'MRR':>8}{'P@3':>8}{'ms':>9}")
+    print("-" * 63)
+    for method, m in results.items():
+        print(f"{method:<22}{m['hit_at_1']:>8.3f}{m['hit_at_3']:>8.3f}"
+              f"{m['avg_mrr']:>8.3f}{m['avg_precision_at_3']:>8.3f}"
+              f"{m['avg_query_time_ms']:>9.1f}")
+    print("-" * 63)
     print("\nInterpretation:")
-    print("  Precision@3 : fraction of top-3 results containing expected keywords (higher=better)")
-    print("  MRR         : mean reciprocal rank — 1.0 = correct result always first (higher=better)")
-    print("  Query Time  : latency per query in milliseconds (lower=better)")
+    print("  Hit@1/Hit@3 : queries whose exact source passage is retrieved at")
+    print("                rank 1 / within top 3 (higher=better)")
+    print("  MRR         : mean reciprocal rank of the gold passage (higher=better)")
+    print("  P@3         : top-3 keyword overlap with the gold answer (higher=better)")
+    print("  ms          : average query latency, milliseconds (lower=better)")
 
     return results
 

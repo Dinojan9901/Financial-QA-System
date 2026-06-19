@@ -70,11 +70,6 @@ def load_store():
     from retrieval.vector_store import VectorStore
     return VectorStore()
 
-@st.cache_resource(show_spinner=False)
-def load_qa_chain():
-    from generation.qa_chain import get_qa_chain
-    return get_qa_chain()
-
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 
@@ -84,18 +79,40 @@ with st.sidebar:
 
     st.markdown("## ⚙️ Settings")
 
-    openai_key = st.text_input(
-        "OpenAI API Key (optional)",
+    st.markdown("**LLM for answer generation** (optional)")
+    groq_key = st.text_input(
+        "Groq API Key — free",
         type="password",
-        placeholder="sk-... (leave blank for free local mode)",
-        help="If provided, GPT-4o-mini generates grounded answers. "
-             "Without a key, the most relevant passage is returned directly.",
+        placeholder="gsk_... (free at console.groq.com/keys)",
+        help="Free, fast LLM generation (Llama 3.3 70B). With a key the system "
+             "writes a synthesised grounded answer; without one it returns the "
+             "most relevant retrieved passage.",
     )
-    if openai_key:
+    openai_key = st.text_input(
+        "OpenAI API Key — alternative",
+        type="password",
+        placeholder="sk-... (optional; GPT-4o-mini)",
+        help="Alternative to Groq. Leave blank if using Groq or local mode.",
+    )
+
+    # Embeddings always stay on the free local MiniLM model.
+    os.environ["USE_LOCAL_MODELS"] = "true"
+    if groq_key:
+        os.environ["GROQ_API_KEY"] = groq_key
+        os.environ["LLM_PROVIDER"] = "groq"
+    elif openai_key:
         os.environ["OPENAI_API_KEY"] = openai_key
-        os.environ["USE_LOCAL_MODELS"] = "false"
+        os.environ["LLM_PROVIDER"] = "openai"
     else:
-        os.environ["USE_LOCAL_MODELS"] = "true"
+        os.environ["LLM_PROVIDER"] = "local"
+
+    # Show which mode is active so the user has clear feedback.
+    if groq_key:
+        st.success("🟢 Generation: Groq (Llama 3.3 70B)")
+    elif openai_key:
+        st.success("🟢 Generation: OpenAI (GPT-4o-mini)")
+    else:
+        st.info("🔵 Generation: local retrieval-only (no key)")
 
     n_chunks = st.slider("Chunks retrieved per question", min_value=1, max_value=8, value=3)
 
@@ -272,7 +289,9 @@ with tab1:
 
                     embedder = load_embedder()
                     store = load_store()
-                    qa = load_qa_chain()
+                    # Resolve the LLM chain live (uncached) so a key entered in
+                    # the sidebar this session takes effect immediately.
+                    qa = get_qa_chain()
 
                     t0 = time.perf_counter()
                     q_emb = embedder.embed_text(question)
@@ -326,9 +345,11 @@ with tab1:
 with tab2:
     st.subheader("Evaluation Results — Live Experimental Data")
     st.markdown(
-        "These results were produced by running `python run_evaluation.py --save` "
-        "on the local system. All three experiments use the **free local model** "
-        "(no API key required)."
+        "Produced by `python run_evaluation.py --save`. Experiments 1–2 run on "
+        "**50 real Q&A pairs** sampled from the public "
+        "[`virattt/financial-qa-10K`](https://huggingface.co/datasets/virattt/financial-qa-10K) "
+        "dataset (derived from genuine **SEC 10-K filings**); the free local model "
+        "is used, so no API key is required."
     )
 
     # Load saved results
@@ -345,8 +366,9 @@ with tab2:
         st.markdown("---")
         st.markdown("### Experiment 1 — Embedding Baseline Comparison")
         st.markdown(
-            "Compares TF-IDF, Word2Vec, and SentenceTransformer on retrieval quality "
-            "for 5 financial queries."
+            "Gold source-passage retrieval over 50 real SEC 10-K questions: does each "
+            "method rank the question's exact source passage first (**Hit@1**) or "
+            "within the top 3 (**Hit@3**)? **MRR** is the mean reciprocal rank."
         )
 
         baseline = eval_data.get("embedding_baseline", {})
@@ -354,43 +376,52 @@ with tab2:
             col1, col2, col3 = st.columns(3)
             for col, (method, metrics) in zip([col1, col2, col3], baseline.items()):
                 with col:
-                    p3 = metrics.get("avg_precision_at_3", 0)
+                    hit1 = metrics.get("hit_at_1", metrics.get("avg_precision_at_3", 0))
+                    hit3 = metrics.get("hit_at_3", 0)
                     mrr = metrics.get("avg_mrr", 0)
-                    col.metric(f"Precision (top-3)", f"{p3:.3f}",
-                               delta=f"{(p3 - 0.333):+.3f} vs TF-IDF" if method != "TF-IDF" else None)
-                    col.metric("MRR", f"{mrr:.3f}",
-                               delta=f"{(mrr - 0.800):+.3f} vs TF-IDF" if method != "TF-IDF" else None)
-                    col.caption(f"**{method}**")
+                    star = " 🏆" if method == "SentenceTransformer" else ""
+                    col.markdown(f"**{method}{star}**")
+                    col.metric("Hit@1", f"{hit1:.3f}")
+                    col.metric("Hit@3", f"{hit3:.3f}")
+                    col.metric("MRR", f"{mrr:.3f}")
 
         # ── Experiment 2: RAG vs No-RAG ───────────────────────────────────────
         st.markdown("---")
         st.markdown("### Experiment 2 — RAG vs No-RAG")
         st.markdown(
-            "Compares three answer strategies: No-RAG (LLM only), Random Context "
-            "(irrelevant chunks), and RAG (correctly retrieved chunks)."
+            "Three answer strategies on the same 50 questions, measured by **Keyword "
+            "Hit Rate** (fraction of gold-answer keywords recovered). RAG should "
+            "dominate — relevant context is what makes grounded answers possible."
         )
 
         rag_data = eval_data.get("rag_vs_norag", {})
         if rag_data:
             col1, col2, col3 = st.columns(3)
             colours = {"No-RAG": "🔴", "Random-Context": "🟡", "RAG": "🟢"}
+            labels = {
+                "No-RAG": "LLM only, no context",
+                "Random-Context": "irrelevant chunks",
+                "RAG": "retrieved relevant chunks",
+            }
             for col, (strategy, metrics) in zip([col1, col2, col3], rag_data.items()):
                 with col:
                     khr = metrics.get("avg_keyword_hit_rate", 0)
-                    faith = metrics.get("avg_faithfulness", 0)
-                    hall = metrics.get("hallucination_count", 0)
                     emoji = colours.get(strategy, "⚪")
                     col.markdown(f"**{emoji} {strategy}**")
                     col.metric("Keyword Hit Rate", f"{khr:.3f}")
-                    col.metric("Faithfulness", f"{faith:.3f}")
-                    col.metric("Hallucinations", f"{hall} / 5")
+                    col.caption(labels.get(strategy, ""))
+            st.caption(
+                "Faithfulness / hallucination heuristics are degenerate on this "
+                "larger set in offline simulation mode, so Keyword Hit Rate is the "
+                "reported signal (see report §6.3.2)."
+            )
 
         # ── Experiment 3: Full Benchmark ──────────────────────────────────────
         st.markdown("---")
-        st.markdown("### Experiment 3 — Full Embedding Benchmark")
+        st.markdown("### Experiment 3 — Intrinsic Embedding Benchmark")
         st.markdown(
-            "P₁ (Precision at rank 1), MRR, NDCG₃, Separability Gap, and Query Latency "
-            "for Word2Vec, TF-IDF, and MiniLM-L6-v2."
+            "Intrinsic embedding quality on curated similar/dissimilar probe pairs: "
+            "P₁, MRR, NDCG₃, **Separability Gap**, and query latency."
         )
 
         bench = eval_data.get("embedding_benchmark", {})
