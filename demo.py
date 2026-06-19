@@ -34,6 +34,7 @@ DIVIDER = "=" * 70
 
 
 def section(title):
+    """Print a titled divider banner to separate demo sections."""
     print(f"\n{DIVIDER}")
     print(f"  {title}")
     print(DIVIDER)
@@ -55,6 +56,8 @@ def _valid_openai_key():
 # ── Demo 1: NLP Pipeline ─────────────────────────────────────────────────────
 
 def demo_nlp():
+    """Demo 1 — NLP: text cleaning, token-counted chunking, and a Word2Vec
+    vs. sentence-transformer embedding comparison on sample financial text."""
     section("DEMO 1: NLP — Text Preprocessing & Embeddings")
 
     # 1a. Text cleaning
@@ -121,6 +124,8 @@ def demo_nlp():
 # ── Demo 2: Full RAG Pipeline ─────────────────────────────────────────────────
 
 def demo_rag():
+    """Demo 2 — full RAG pipeline: embed sample chunks, store them in ChromaDB,
+    retrieve the top matches for several questions, and show grounded answers."""
     section("DEMO 2: Full RAG Pipeline (Embed → Store → Retrieve → Ground)")
 
     import tempfile
@@ -175,6 +180,8 @@ def demo_rag():
 # ── Demo 3: Evaluation ────────────────────────────────────────────────────────
 
 def demo_evaluation():
+    """Demo 3 — run the two dataset-driven experiments (embedding baseline
+    comparison and RAG vs. No-RAG) and print their result tables."""
     section("DEMO 3: Evaluation — Baseline Comparison & RAG vs No-RAG")
 
     from evaluation.baseline_comparison import run_baseline_comparison
@@ -205,6 +212,7 @@ def demo_evaluation():
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
+    """Parse CLI flags and run the demos (full demo, --eval only, or --api)."""
     parser = argparse.ArgumentParser(description="EC7203 AI Project Demo")
     parser.add_argument("--eval", action="store_true", help="Run evaluation only")
     parser.add_argument("--api",  action="store_true", help="Launch FastAPI server")

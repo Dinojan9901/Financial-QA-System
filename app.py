@@ -79,9 +79,8 @@ def load_store():
 
 
 with st.sidebar:
-    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/24701-nature-natural-beauty.jpg/1px-placeholder.png",
-             width=80)
-
+    st.markdown("# 📊 Financial Q&A")
+    st.caption("EC7203 Advanced AI")
     st.markdown("## ⚙️ Settings")
 
     st.markdown("**LLM for answer generation** (optional)")
@@ -484,7 +483,7 @@ PHASE 2 - QUERYING (run on every user question)
     with col2:
         st.markdown("#### 2. LLM")
         st.markdown("""
-- GPT-4o-mini (OpenAI API)
+- **Groq** Llama 3.3 70B (free) / OpenAI GPT-4o-mini
 - Transformer decoder architecture
 - Temperature = 0.1 (factual)
 - Grounded generation from context

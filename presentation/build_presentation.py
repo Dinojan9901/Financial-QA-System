@@ -214,7 +214,7 @@ add_text(s, tags, Inches(0.5), Inches(4.7), Inches(12.3), Inches(0.4),
          size=14, color=WHITE, align=PP_ALIGN.CENTER)
 
 # Footer
-add_text(s, "Final Group Project Report  •  May 2026",
+add_text(s, "Final Group Project Report  •  June 2026",
          Inches(0.5), Inches(6.9), Inches(12.3), Inches(0.4),
          size=12, color=WHITE, align=PP_ALIGN.CENTER)
 
@@ -328,8 +328,8 @@ techniques = [
       "TF-IDF  (baseline)",
       "Sentence-Transformers  (proposed)"], NAVY, LIGHT_BLUE),
     ("2", "Large Language Models",
-     ["Transformer architecture (GPT-4o-mini)",
-      "OpenAI Chat Completions API",
+     ["Groq Llama 3.3 70B (free) / GPT-4o-mini",
+      "OpenAI-compatible Chat API",
       "Temperature = 0.1 (factual)",
       "Grounded answer generation",
       "Free local fallback mode"], ORANGE, LIGHT_GOLD),
@@ -484,9 +484,9 @@ add_text(s, "Layered Architecture",
 
 layers = [
     ("Web UI / API",      "Streamlit  •  FastAPI",        ORANGE,  LIGHT_GOLD),
-    ("Generation",        "GPT-4o-mini  •  LangChain",    GREEN,   LIGHT_GREEN),
+    ("Generation",        "Groq Llama 3.3 / GPT-4o-mini", GREEN,   LIGHT_GREEN),
     ("Retrieval",         "ChromaDB  •  Cosine ANN",      NAVY,    LIGHT_BLUE),
-    ("Embedding",         "MiniLM-L6-v2  •  OpenAI emb.", NAVY,    LIGHT_BLUE),
+    ("Embedding",         "MiniLM-L6-v2 (local, free)",   NAVY,    LIGHT_BLUE),
     ("NLP Preprocessing", "pdfplumber  •  tiktoken",      GREY,    LIGHT_BG),
 ]
 y = Inches(1.7)
@@ -574,7 +574,7 @@ s = prs.slides.add_slide(BLANK)
 add_bg(s)
 add_header_bar(s, "Experiment 1: Embedding Baseline Comparison")
 
-add_text(s, "Compared three methods on 5 financial queries — which retrieves the right passage?",
+add_text(s, "50 real SEC 10-K Q&A pairs — does the method retrieve the exact source passage?",
          Inches(0.5), Inches(1.0), Inches(12.3), Inches(0.4),
          size=14, italic=True, color=GREY, align=PP_ALIGN.CENTER)
 
@@ -593,11 +593,11 @@ table.columns[1].width = Inches(1.3)
 table.columns[2].width = Inches(1.3)
 table.columns[3].width = Inches(1.4)
 
-headers = ["Method", "P₃", "MRR", "Latency"]
+headers = ["Method", "Hit@1", "MRR", "Latency"]
 rows = [
-    ("TF-IDF (sparse, n-gram)",          "0.620", "0.963", "10.09 ms"),
-    ("Word2Vec (skip-gram, d=100)",      "0.447", "0.717", "5.57 ms"),
-    ("MiniLM-L6-v2  ← proposed",         "0.580", "1.000", "177.19 ms"),
+    ("TF-IDF (sparse, n-gram)",          "0.940", "0.963", "10.2 ms"),
+    ("Word2Vec (skip-gram, d=100)",      "0.640", "0.717", "4.3 ms"),
+    ("MiniLM-L6-v2  ← proposed",         "1.000", "1.000", "139 ms"),
 ]
 
 # Header row
@@ -635,13 +635,13 @@ add_text(s, "KEY FINDING",
          size=13, bold=True, color=GREEN, align=PP_ALIGN.CENTER)
 add_text(s, "1.000", Inches(8.2), Inches(2.4), Inches(4.6), Inches(1.4),
          size=80, bold=True, color=GREEN, align=PP_ALIGN.CENTER)
-add_text(s, "MRR for MiniLM-L6-v2",
+add_text(s, "Hit@1 = MRR = 1.000 (MiniLM-L6-v2)",
          Inches(8.2), Inches(3.8), Inches(4.6), Inches(0.4),
-         size=16, bold=True, color=DARK_TEXT, align=PP_ALIGN.CENTER)
-add_text(s, "The correct document is always\nranked first — perfect retrieval.",
+         size=15, bold=True, color=DARK_TEXT, align=PP_ALIGN.CENTER)
+add_text(s, "The exact source passage is\nretrieved first for every query.",
          Inches(8.2), Inches(4.3), Inches(4.6), Inches(0.9),
          size=13, italic=True, color=DARK_TEXT, align=PP_ALIGN.CENTER)
-add_text(s, "2.7× better MRR than\nthe Word2Vec baseline.",
+add_text(s, "vs Hit@1 = 0.640 for Word2Vec\n(TF-IDF a strong 0.940 baseline).",
          Inches(8.2), Inches(5.3), Inches(4.6), Inches(0.9),
          size=13, italic=True, color=GREEN, align=PP_ALIGN.CENTER)
 
@@ -670,18 +670,15 @@ add_text(s, "50 financial-qa-10K questions, three answer strategies. Which appro
 cards = [
     ("No-RAG", "LLM alone, no document",
      [("Keyword Hit Rate", "0.008"),
-      ("Faithfulness",     "1.000"),
-      ("Hallucinations",   "0 / 50")],
+      ("of gold keywords", "<1%")],
      RED, RGBColor(0xFF, 0xEB, 0xEE)),
     ("Random Context", "Irrelevant chunks fed in",
      [("Keyword Hit Rate", "0.133"),
-      ("Faithfulness",     "1.000"),
-      ("Hallucinations",   "0 / 50")],
+      ("of gold keywords", "13%")],
      ORANGE, LIGHT_GOLD),
     ("RAG (Proposed)", "Correctly retrieved chunks",
      [("Keyword Hit Rate", "0.840"),
-      ("Faithfulness",     "1.000"),
-      ("Hallucinations",   "0 / 50")],
+      ("of gold keywords", "84%")],
      GREEN, LIGHT_GREEN),
 ]
 
@@ -722,8 +719,8 @@ for i, (name, sub, metrics, accent, fill) in enumerate(cards):
 
 # Bottom takeaway
 add_text(s,
-         "RAG achieves 100% Keyword Hit Rate and ZERO hallucinations — "
-         "while No-RAG hallucinated a fabricated R&D percentage.",
+         "RAG recovers 84% of gold-answer keywords versus under 1% without "
+         "grounding — relevant retrieved context is what makes answers accurate.",
          Inches(0.5), Inches(6.6), Inches(12.3), Inches(0.5),
          size=15, italic=True, color=NAVY, align=PP_ALIGN.CENTER, bold=True)
 
@@ -745,10 +742,10 @@ add_text(s, "What We Achieved",
 achievements = [
     "Built a production-ready RAG pipeline for financial documents",
     "Integrated 3 AI techniques: NLP, LLM, Prompt Engineering",
-    "Demonstrated Word2Vec, TF-IDF, and Sentence-Transformer baselines",
-    "Perfect retrieval (MRR = 1.000) on the test corpus",
-    "Zero hallucinations with the RAG architecture",
-    "Deployed as Streamlit web app + FastAPI REST service",
+    "Evaluated on 50 real SEC 10-K Q&A pairs (financial-qa-10K)",
+    "Perfect retrieval: Hit@1 = MRR = 1.000 for MiniLM",
+    "RAG recovers 84% of gold keywords vs <1% without grounding",
+    "Deployed live on Streamlit Cloud (free, Groq-powered)",
 ]
 
 add_bullets(s, achievements,
@@ -815,7 +812,7 @@ add_text(s, delivs, Inches(0.5), Inches(5.5), Inches(12.3), Inches(0.5),
 add_text(s, "EC7203 Advanced Artificial Intelligence  •  Final Group Project",
          Inches(0.5), Inches(6.8), Inches(12.3), Inches(0.4),
          size=13, color=WHITE, align=PP_ALIGN.CENTER)
-add_text(s, "May 2026", Inches(0.5), Inches(7.15), Inches(12.3), Inches(0.3),
+add_text(s, "June 2026", Inches(0.5), Inches(7.15), Inches(12.3), Inches(0.3),
          size=11, italic=True, color=GOLD, align=PP_ALIGN.CENTER)
 
 

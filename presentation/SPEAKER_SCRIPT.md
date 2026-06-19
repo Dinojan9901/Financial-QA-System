@@ -53,7 +53,7 @@
 
 > "The course required a minimum of three AI techniques. We applied:
 > One: NLP — including text preprocessing, Word2Vec, TF-IDF, and Sentence-Transformers.
-> Two: Large Language Models — GPT-4o-mini accessed via the OpenAI API.
+> Two: Large Language Models — Groq's Llama 3.3 70B, free, or OpenAI GPT-4o-mini, through an OpenAI-compatible API.
 > Three: Prompt Engineering — using systematic prompt design, chain-of-thought reasoning,
 > and few-shot in-context learning."
 
@@ -69,8 +69,8 @@
 
 > "The system is built in Python across five layers — from PDF preprocessing at the bottom,
 > through embedding and retrieval, up to the Streamlit web UI and FastAPI service at the top.
-> The codebase has 28 files and around 2,400 lines of code, with 3 evaluation experiments
-> against golden test cases."
+> The codebase is fully modular, with three evaluation experiments run on a real public
+> dataset — financial-qa-10K, derived from genuine SEC 10-K filings."
 
 ### Slide 7 — LIVE DEMO (1:00)
 
@@ -87,26 +87,27 @@
 
 ### Slide 8 — Experiment 1: Baselines (0:25)
 
-> "We benchmarked three embedding methods on five financial queries.
-> TF-IDF — the classical IR baseline — scored MRR 0.800.
-> Word2Vec scored 0.517 — limited by the small vocabulary on our corpus.
-> Our proposed MiniLM-L6-v2 scored a perfect 1.000 MRR — the correct document is always
-> retrieved first. That's 2.7 times better than the Word2Vec baseline."
+> "We benchmarked three embedding methods on 50 real SEC 10-K question-answer pairs,
+> measuring whether each retrieves the exact source passage.
+> TF-IDF is a strong lexical baseline at Hit@1 of 0.940.
+> Word2Vec is weakest at 0.640 — limited by its small in-corpus vocabulary.
+> Our proposed MiniLM-L6-v2 retrieves the correct passage first for every query —
+> Hit@1 and MRR are both a perfect 1.000."
 
 ### Slide 9 — Experiment 2: RAG vs No-RAG (0:25)
 
-> "We then compared three answer strategies.
-> No-RAG — asking the LLM with no document — hit only 40% of keywords and hallucinated once.
-> Random Context — providing irrelevant chunks — was even worse at 20%.
-> RAG — our system — achieved 100% Keyword Hit Rate with zero hallucinations. This proves
-> that retrieval quality, not just context quantity, drives answer quality."
+> "We then compared three answer strategies by Keyword Hit Rate.
+> No-RAG — the LLM with no document — recovered under one percent of the expected keywords.
+> Random Context — irrelevant chunks — managed only thirteen percent.
+> RAG — our system — recovered eighty-four percent. This proves that relevant retrieved
+> context, not just any context, is what drives answer quality."
 
 ### Slide 10 — Conclusions & Future Work (0:20)
 
 > "We delivered a complete RAG pipeline satisfying all three required AI techniques, with
-> perfect retrieval and zero hallucinations on our test set. Future work includes hybrid
-> dense-plus-BM25 retrieval, FinBERT for financial domain embeddings, and cross-document
-> queries comparing multiple companies."
+> perfect retrieval — Hit@1 of 1.000 — and an 84 percent keyword hit rate on real filings,
+> deployed live on Streamlit Cloud. Future work includes hybrid dense-plus-BM25 retrieval,
+> FinBERT for financial domain embeddings, and cross-document queries comparing companies."
 
 ### Slide 11 — Thank You (0:10)
 
