@@ -127,7 +127,6 @@ def demo_rag():
     from ingestion.embedder import EmbeddingGenerator
     from retrieval.vector_store import VectorStore
     from generation.qa_chain import get_qa_chain
-    from generation.prompt_builder import build_qa_prompt
 
     tmp = tempfile.mkdtemp()
     embedder = EmbeddingGenerator()

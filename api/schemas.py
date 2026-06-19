@@ -6,8 +6,6 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 
-# ── Ingest endpoint ───────────────────────────────────────────────────────────
-
 class IngestResponse(BaseModel):
     status: str
     source: str
@@ -16,8 +14,6 @@ class IngestResponse(BaseModel):
     avg_tokens_per_chunk: int
     message: str
 
-
-# ── Ask endpoint ─────────────────────────────────────────────────────────────
 
 class QuestionRequest(BaseModel):
     question: str = Field(
@@ -53,21 +49,15 @@ class QuestionResponse(BaseModel):
     chunks_retrieved: int
 
 
-# ── Documents list endpoint ───────────────────────────────────────────────────
-
 class DocumentListResponse(BaseModel):
     documents: List[str]
     total_count: int
 
 
-# ── Delete endpoint ───────────────────────────────────────────────────────────
-
 class DeleteResponse(BaseModel):
     status: str
     source: str
 
-
-# ── Health endpoint ───────────────────────────────────────────────────────────
 
 class HealthResponse(BaseModel):
     status: str

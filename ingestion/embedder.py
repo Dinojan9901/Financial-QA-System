@@ -8,10 +8,7 @@ Supports two modes:
 Set USE_LOCAL_MODELS=true in .env to use the free local mode.
 """
 
-import os
 from typing import List, Dict
-
-import numpy as np
 
 from config import USE_LOCAL_MODELS, EMBEDDING_MODEL, OPENAI_API_KEY
 
@@ -26,7 +23,7 @@ class EmbeddingGenerator:
         else:
             self._load_openai_client()
 
-    # ── Public API ────────────────────────────────────────────────────────────
+
 
     def embed_text(self, text: str) -> List[float]:
         """Generate a single embedding vector for a text string."""
@@ -53,7 +50,7 @@ class EmbeddingGenerator:
         print(f"[embedder] Done — {len(embeddings)} embeddings generated.")
         return chunks
 
-    # ── Private ───────────────────────────────────────────────────────────────
+
 
     def _load_local_model(self):
         from sentence_transformers import SentenceTransformer

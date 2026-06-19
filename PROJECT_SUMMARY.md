@@ -9,7 +9,7 @@
 ## Three Core Deliverables (Course Requirement)
 
 ### ✅ Deliverable 1: Final Report
-**Location:** `report/main.pdf` (19 pages)
+**Location:** `report/main.pdf` (22 total pages; body under the 20-page limit, excluding references and appendices)
 
 - **Format:** PDF compiled from LaTeX
 - **Sections (11 total):**
@@ -40,10 +40,10 @@
 - Works completely free (no API key required) using local embeddings
 
 **Supporting Outputs:**
-- `evaluation/results/evaluation_20260529_215618.json` — Live experiment results
+- `evaluation/results/evaluation_20260619_211830.json` — latest saved experiment results
 - Three evaluation experiments with concrete metrics:
-  - Experiment 1: TF-IDF (P@3=0.333) vs Word2Vec (P@3=0.200) vs MiniLM (P@3=0.400)
-  - Experiment 2: No-RAG (KHR=0.400) vs RAG (KHR=1.000)
+  - Experiment 1: TF-IDF (Hit@3=1.000) vs Word2Vec (Hit@3=0.760) vs MiniLM (Hit@3=1.000)
+  - Experiment 2: No-RAG (KHR=0.008) vs RAG (KHR=0.840)
   - Experiment 3: Full benchmark with P@1, MRR, NDCG@3, separability gap
 
 **Video Presentation:**
@@ -134,18 +134,18 @@
 ```
 Method                Precision@3    MRR      Query Time
 ─────────────────────────────────────────────────────────
-TF-IDF                0.333         0.800    4.9 ms
-Word2Vec              0.200         0.517    2.0 ms
-MiniLM-L6-v2 ✅      0.400         1.000    89.0 ms (perfect!)
+TF-IDF                0.620         0.963    10.09 ms
+Word2Vec              0.447         0.717    5.57 ms
+MiniLM-L6-v2          0.580         1.000    177.19 ms
 ```
 
 **Experiment 2: RAG vs No-RAG**
 ```
 Strategy              KHR    Faithfulness    Hallucinations
 ────────────────────────────────────────────────────────────
-No-RAG               0.400  0.600          1/5 ❌
-Random Context       0.200  1.000          0/5
-RAG ✅               1.000  1.000          0/5 (perfect!)
+No-RAG               0.008  1.000          0/50
+Random Context       0.133  1.000          0/50
+RAG                  0.840  1.000          0/50
 ```
 
 **Experiment 3: Full Benchmark**
@@ -161,7 +161,7 @@ RAG ✅               1.000  1.000          0/5 (perfect!)
 - **Jupyter Notebook Sections:** 10 (comprehensive walkthrough)
 
 ### Report & Documentation
-- **Final Report:** 19 pages (LaTeX)
+- **Final Report:** 22 total pages; body under the 20-page limit
 - **README:** ~3000 words (comprehensive setup & usage guide)
 - **Presentation Slides:** 11 slides (16:9, 5:00 duration)
 - **Speaker Script:** Fully narrated with time budget
@@ -238,7 +238,7 @@ docker run -p 8501:8501 financial-qa
 
 ## Submission Checklist
 
-- ✅ Final Report (PDF, 19 pages, LaTeX, all 11 sections, proper formatting)
+- ✅ Final Report (PDF, 22 total pages; body under the 20-page limit, excluding references and appendices)
 - ✅ Demonstrable Output (Streamlit web app + terminal demo + video presentation)
 - ✅ Python Code & Notebooks (28 files, 5 modules, comprehensive documentation)
 - ✅ All evaluation experiments (3 baseline comparisons with concrete metrics)

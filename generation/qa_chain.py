@@ -8,7 +8,6 @@ Generation runs through any OpenAI-compatible provider:
 Temperature=0.1 keeps answers factual, not creative.
 """
 
-import os
 from typing import List, Dict
 
 from generation.prompt_builder import build_qa_prompt
@@ -29,7 +28,6 @@ class FinancialQAChain:
                 "No LLM API key configured. Set GROQ_API_KEY (free) or "
                 "OPENAI_API_KEY in .env, or use local retrieval-only mode."
             )
-        # Both Groq and OpenAI use the OpenAI SDK; only base_url/model differ.
         self.client = OpenAI(api_key=api_key, base_url=base_url)
         self.provider = provider
         self.model = model or default_model

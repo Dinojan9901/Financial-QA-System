@@ -10,7 +10,6 @@ Key design choices:
 
 from typing import List, Dict
 
-# ── System prompt (Prompt Engineering technique) ──────────────────────────────
 FINANCIAL_QA_SYSTEM_PROMPT = """You are an expert financial analyst assistant.
 You answer questions about financial documents (10-K reports, earnings calls, SEC filings)
 accurately, concisely, and with clear source citations.
@@ -26,7 +25,6 @@ CRITICAL RULES:
 7. Flag any uncertainty explicitly with "Note: ...".
 8. Think step by step before answering to ensure accuracy."""
 
-# ── Few-shot examples (in-context learning) ───────────────────────────────────
 FEW_SHOT_EXAMPLES = [
     {
         "role": "user",

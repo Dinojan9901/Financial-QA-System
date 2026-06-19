@@ -14,7 +14,6 @@ import shutil
 import tempfile
 
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from fastapi.responses import JSONResponse
 
 from api.schemas import (
     IngestResponse,
@@ -31,8 +30,6 @@ from config import API_VERSION
 router = APIRouter(prefix="/api/v1", tags=["Financial Q&A"])
 
 
-# ── POST /ingest ──────────────────────────────────────────────────────────────
-
 @router.post("/ingest", response_model=IngestResponse, summary="Upload and index a financial PDF")
 async def ingest_pdf(file: UploadFile = File(..., description="Financial PDF document")):
     """
@@ -42,14 +39,12 @@ async def ingest_pdf(file: UploadFile = File(..., description="Financial PDF doc
     if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are accepted.")
 
-    # Save to a temp file so pdfplumber can open it by path
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
         shutil.copyfileobj(file.file, tmp)
         tmp_path = tmp.name
 
     try:
         result = ingest_document(tmp_path)
-        # Rename the source to the original filename in the result
         result["source"] = file.filename
         return IngestResponse(
             status=result["status"],
@@ -64,8 +59,6 @@ async def ingest_pdf(file: UploadFile = File(..., description="Financial PDF doc
     finally:
         os.unlink(tmp_path)
 
-
-# ── POST /ask ─────────────────────────────────────────────────────────────────
 
 @router.post("/ask", response_model=QuestionResponse, summary="Ask a question about documents")
 async def ask_question(request: QuestionRequest):
@@ -84,16 +77,12 @@ async def ask_question(request: QuestionRequest):
         raise HTTPException(status_code=500, detail=f"Q&A failed: {str(e)}")
 
 
-# ── GET /documents ────────────────────────────────────────────────────────────
-
 @router.get("/documents", response_model=DocumentListResponse, summary="List indexed documents")
 async def list_documents():
     """Return a list of all financial documents currently indexed."""
     docs = list_indexed_documents()
     return DocumentListResponse(documents=docs, total_count=len(docs))
 
-
-# ── DELETE /documents/{name} ──────────────────────────────────────────────────
 
 @router.delete(
     "/documents/{document_name}",
@@ -108,8 +97,6 @@ async def remove_document(document_name: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Deletion failed: {str(e)}")
 
-
-# ── GET /health ───────────────────────────────────────────────────────────────
 
 @router.get("/health", response_model=HealthResponse, summary="Health check")
 async def health_check():

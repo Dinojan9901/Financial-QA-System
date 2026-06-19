@@ -19,7 +19,7 @@ under "Experimental Setup & Results" and "Evaluation & Performance Metrics".
 
 import time
 import warnings
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
@@ -27,7 +27,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 warnings.filterwarnings("ignore")
 
 
-# ── Test data ─────────────────────────────────────────────────────────────────
 
 # Sentence pairs that SHOULD be semantically similar (expected high cosine sim)
 SIMILAR_PAIRS = [
@@ -70,7 +69,6 @@ RETRIEVAL_QUERIES = [
 ]
 
 
-# ── Metric helpers ────────────────────────────────────────────────────────────
 
 def precision_at_k(ranked_indices: List[int], correct_idx: int, k: int) -> float:
     return 1.0 if correct_idx in ranked_indices[:k] else 0.0
@@ -103,7 +101,6 @@ def rank_documents(
     return list(np.argsort(sims)[::-1])
 
 
-# ── Model wrappers ────────────────────────────────────────────────────────────
 
 def _load_word2vec(corpus: List[str]):
     from gensim.models import Word2Vec
@@ -154,7 +151,6 @@ def _load_openai(api_key: str):
     return embed, "OpenAI text-emb-3-small"
 
 
-# ── Benchmark runner ──────────────────────────────────────────────────────────
 
 def run_embedding_benchmark(openai_key: Optional[str] = None, verbose: bool = True) -> Dict:
     """
@@ -182,7 +178,6 @@ def run_embedding_benchmark(openai_key: Optional[str] = None, verbose: bool = Tr
         print(f"MODEL: {model_name}")
         print("="*65)
 
-        # ── Semantic similarity test ─────────────────────────────────────────
         sim_scores, dissim_scores = [], []
         for a, b in SIMILAR_PAIRS:
             va, vb = embed_fn(a), embed_fn(b)
@@ -202,7 +197,6 @@ def run_embedding_benchmark(openai_key: Optional[str] = None, verbose: bool = Tr
             print(f"  Semantic similarity  (dissimilar pairs): {avg_dissim:.3f}")
             print(f"  Separability gap:                        {separability:.3f} (higher=better)")
 
-        # ── Retrieval benchmark ──────────────────────────────────────────────
         t0 = time.perf_counter()
         doc_vecs = np.array([embed_fn(d) for d in RETRIEVAL_CORPUS])
         index_time = (time.perf_counter() - t0) * 1000
@@ -221,7 +215,6 @@ def run_embedding_benchmark(openai_key: Optional[str] = None, verbose: bool = Tr
             ndcg_scores.append(ndcg_at_k(ranked, case["correct_idx"], k=3))
 
             if verbose:
-                top3 = [RETRIEVAL_CORPUS[i][:50] for i in ranked[:3]]
                 correct = ranked.index(case["correct_idx"]) + 1
                 print(f"  Q: {case['question'][:50]}")
                 print(f"     Rank of correct doc: #{correct} | "
@@ -240,7 +233,6 @@ def run_embedding_benchmark(openai_key: Optional[str] = None, verbose: bool = Tr
         }
         results[model_name] = model_results
 
-    # ── Summary table ─────────────────────────────────────────────────────────
     print("\n" + "="*90)
     print("BENCHMARK SUMMARY — Embedding Model Comparison")
     print("="*90)

@@ -25,7 +25,6 @@ class FinancialTextChunker:
         chunk_overlap: int = CHUNK_OVERLAP,
         model_name: str = LLM_MODEL,
     ):
-        # tiktoken counts tokens the same way the target LLM does
         try:
             self.tokenizer = tiktoken.encoding_for_model(model_name)
         except KeyError:
@@ -38,7 +37,7 @@ class FinancialTextChunker:
             separators=["\n\n", "\n", ". ", " ", ""],
         )
 
-    # ── Public API ────────────────────────────────────────────────────────────
+
 
     def chunk_pages(self, pages: List[Dict]) -> List[Dict]:
         """
@@ -77,7 +76,7 @@ class FinancialTextChunker:
             "max_tokens": max(token_counts),
         }
 
-    # ── Helpers ───────────────────────────────────────────────────────────────
+
 
     def _count_tokens(self, text: str) -> int:
         return len(self.tokenizer.encode(text))

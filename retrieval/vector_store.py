@@ -24,7 +24,7 @@ class VectorStore:
         )
         self.collection = self._get_or_create_collection()
 
-    # ── Public API ────────────────────────────────────────────────────────────
+
 
     def add_chunks(self, chunks: List[Dict]) -> None:
         """Upsert embedded chunks into the collection."""
@@ -85,7 +85,7 @@ class VectorStore:
     def get_document_count(self) -> int:
         return self.collection.count()
 
-    # ── Private ───────────────────────────────────────────────────────────────
+
 
     def _get_or_create_collection(self):
         return self.client.get_or_create_collection(

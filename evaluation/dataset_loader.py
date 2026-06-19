@@ -22,10 +22,9 @@ publicly available dataset (satisfies the project's dataset requirement).
 from __future__ import annotations
 
 import json
-import os
 import re
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 HF_DATASET_NAME = "virattt/financial-qa-10K"
 DEFAULT_SAMPLE_SIZE = 50

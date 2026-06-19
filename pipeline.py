@@ -17,8 +17,6 @@ from generation.qa_chain import get_qa_chain
 from config import TOP_K_RESULTS
 
 
-# ── Phase 1: Indexing ─────────────────────────────────────────────────────────
-
 def ingest_document(pdf_path: str) -> Dict:
     """
     Full ingestion pipeline for one financial PDF.
@@ -35,7 +33,6 @@ def ingest_document(pdf_path: str) -> Dict:
     print(f"INGESTING: {pdf_path}")
     print(f"{'='*60}")
 
-    # Step 1 — Extract
     print("\nStep 1/4: Extracting text from PDF...")
     loader = FinancialPDFLoader(pdf_path)
     pages = loader.extract_text()
@@ -45,19 +42,16 @@ def ingest_document(pdf_path: str) -> Dict:
     if not pages:
         raise ValueError(f"No text could be extracted from {pdf_path}")
 
-    # Step 2 — Chunk
     print("\nStep 2/4: Chunking text...")
     chunker = FinancialTextChunker()
     chunks = chunker.chunk_pages(pages)
     stats = chunker.get_chunk_stats(chunks)
     print(f"  Stats: {stats}")
 
-    # Step 3 — Embed
     print("\nStep 3/4: Generating embeddings...")
     embedder = EmbeddingGenerator()
     embedded_chunks = embedder.embed_chunks(chunks)
 
-    # Step 4 — Store
     print("\nStep 4/4: Storing in vector database...")
     store = VectorStore()
     store.add_chunks(embedded_chunks)
@@ -75,8 +69,6 @@ def ingest_document(pdf_path: str) -> Dict:
     }
 
 
-# ── Phase 2: Querying ─────────────────────────────────────────────────────────
-
 def answer_question(
     question: str,
     source_filter: Optional[str] = None,
@@ -92,7 +84,6 @@ def answer_question(
 
     Runs on every user query (fast: ~1–3 seconds).
     """
-    # Step 1+2 — Retrieve relevant context
     retriever = FinancialRetriever()
     context_chunks = retriever.retrieve(
         question=question,
@@ -108,13 +99,10 @@ def answer_question(
             "chunks_retrieved": 0,
         }
 
-    # Step 3 — Generate grounded answer
     qa_chain = get_qa_chain()
     result = qa_chain.answer(question=question, context_chunks=context_chunks)
     return result
 
-
-# ── Utility helpers ───────────────────────────────────────────────────────────
 
 def list_indexed_documents() -> list:
     """Return names of all documents currently in the vector store."""
@@ -129,7 +117,6 @@ def delete_document(source_name: str) -> Dict:
     return {"status": "deleted", "source": source_name}
 
 
-# ── Quick smoke test ──────────────────────────────────────────────────────────
 if __name__ == "__main__":
     import sys
 

@@ -16,10 +16,9 @@ Metrics:
   • Mean Reciprocal Rank     — where does the first correct result appear?
 """
 
-import re
 import time
 import warnings
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -28,7 +27,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 warnings.filterwarnings("ignore")
 
 
-# ── Word2Vec Embedder ─────────────────────────────────────────────────────────
 
 class Word2VecEmbedder:
     """
@@ -80,7 +78,6 @@ class Word2VecEmbedder:
         return np.array([self.embed(t) for t in texts])
 
 
-# ── TF-IDF Embedder ───────────────────────────────────────────────────────────
 
 class TFIDFEmbedder:
     """
@@ -110,7 +107,6 @@ class TFIDFEmbedder:
         return self.vectorizer.transform(texts).toarray()
 
 
-# ── Transformer Embedder (baseline 3) ────────────────────────────────────────
 
 class TransformerEmbedder:
     """Sentence-transformers — contextual dense embeddings."""
@@ -128,15 +124,6 @@ class TransformerEmbedder:
         return self.model.encode(texts, batch_size=32, show_progress_bar=False)
 
 
-# ── Evaluation Metrics ────────────────────────────────────────────────────────
-
-def cosine_sim(a: np.ndarray, b: np.ndarray) -> float:
-    """Cosine similarity between two vectors."""
-    norm_a, norm_b = np.linalg.norm(a), np.linalg.norm(b)
-    if norm_a == 0 or norm_b == 0:
-        return 0.0
-    return float(np.dot(a, b) / (norm_a * norm_b))
-
 
 def precision_at_k(retrieved_texts: List[str], expected_keywords: List[str], k: int = 3) -> float:
     """Fraction of top-K chunks that contain at least one expected keyword."""
@@ -148,30 +135,6 @@ def precision_at_k(retrieved_texts: List[str], expected_keywords: List[str], k: 
     return hits / k
 
 
-def mean_reciprocal_rank(retrieved_texts: List[str], expected_keywords: List[str]) -> float:
-    """
-    MRR: 1/rank of the first result containing a keyword.
-    Perfect retrieval = 1.0 (first result is correct).
-    """
-    for rank, text in enumerate(retrieved_texts, 1):
-        if any(kw.lower() in text.lower() for kw in expected_keywords):
-            return 1.0 / rank
-    return 0.0
-
-
-def retrieve_top_k(
-    query_vec: np.ndarray,
-    doc_vecs: np.ndarray,
-    docs: List[str],
-    k: int = 5,
-) -> List[Tuple[str, float]]:
-    """Return top-K documents sorted by cosine similarity to the query."""
-    sims = cosine_similarity([query_vec], doc_vecs)[0]
-    ranked_idx = np.argsort(sims)[::-1][:k]
-    return [(docs[i], float(sims[i])) for i in ranked_idx]
-
-
-# ── Main Comparison Runner ────────────────────────────────────────────────────
 
 # Golden test set — question + expected keywords + a relevant passage
 EVAL_QUESTIONS = [
@@ -286,7 +249,6 @@ def run_baseline_comparison(verbose: bool = True) -> Dict:
 
     results = {}
 
-    # ── 1. TF-IDF ─────────────────────────────────────────────────────────────
     print("\n" + "="*60)
     print("BASELINE 1: TF-IDF (Sparse Classical IR)")
     print("="*60)
@@ -295,7 +257,6 @@ def run_baseline_comparison(verbose: bool = True) -> Dict:
     results["TF-IDF"] = _evaluate_embedder(
         tfidf, tfidf.embed_batch(corpus), corpus, questions, keyword_sets, verbose)
 
-    # ── 2. Word2Vec ───────────────────────────────────────────────────────────
     print("\n" + "="*60)
     print("BASELINE 2: Word2Vec (Dense — trained on document corpus)")
     print("="*60)
@@ -304,7 +265,6 @@ def run_baseline_comparison(verbose: bool = True) -> Dict:
     results["Word2Vec"] = _evaluate_embedder(
         w2v, w2v.embed_batch(corpus), corpus, questions, keyword_sets, verbose)
 
-    # ── 3. Sentence-Transformers ──────────────────────────────────────────────
     print("\n" + "="*60)
     print("PROPOSED: Sentence-Transformers all-MiniLM-L6-v2 (Contextual Dense)")
     print("="*60)
@@ -312,7 +272,6 @@ def run_baseline_comparison(verbose: bool = True) -> Dict:
     results["SentenceTransformer"] = _evaluate_embedder(
         transformer, transformer.embed_batch(corpus), corpus, questions, keyword_sets, verbose)
 
-    # ── Summary Table ─────────────────────────────────────────────────────────
     print("\n" + "="*60)
     print("SUMMARY — Retrieval Quality (gold source-passage retrieval)")
     print("="*60)

@@ -27,7 +27,6 @@ try:
 except Exception:
     pass  # no secrets file locally — that's fine
 
-# ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Financial Document Q&A",
     page_icon="📊",
@@ -35,7 +34,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ── Styles ────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
 .main-header {
@@ -67,7 +65,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# ── Cached resource loading ───────────────────────────────────────────────────
 
 @st.cache_resource(show_spinner=False)
 def load_embedder():
@@ -80,7 +77,6 @@ def load_store():
     return VectorStore()
 
 
-# ── Sidebar ───────────────────────────────────────────────────────────────────
 
 with st.sidebar:
     st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/24701-nature-natural-beauty.jpg/1px-placeholder.png",
@@ -104,10 +100,7 @@ with st.sidebar:
         help="Alternative to Groq. Leave blank if using Groq or local mode.",
     )
 
-    # Embeddings always stay on the free local MiniLM model.
     os.environ["USE_LOCAL_MODELS"] = "true"
-    # A key typed here overrides; if blank, keep any key already provided via
-    # .env or Streamlit/HF secrets (so a deployed key isn't clobbered).
     if groq_key:
         os.environ["GROQ_API_KEY"] = groq_key
         os.environ["LLM_PROVIDER"] = "groq"
@@ -117,7 +110,6 @@ with st.sidebar:
     elif os.getenv("LLM_PROVIDER") not in ("groq", "openai"):
         os.environ["LLM_PROVIDER"] = "auto"  # let config resolve from secrets/.env
 
-    # Show the truly active provider (resolved from sidebar + secrets + .env).
     from config import resolve_llm_provider
     _active, _, _, _model = resolve_llm_provider()
     if _active == "groq":
@@ -146,7 +138,6 @@ with st.sidebar:
     )
 
 
-# ── Main UI ───────────────────────────────────────────────────────────────────
 
 st.markdown('<div class="main-header">📊 Financial Document Q&A System</div>', unsafe_allow_html=True)
 st.markdown(
@@ -158,14 +149,10 @@ st.markdown(
 tab1, tab2, tab3 = st.tabs(["📄 Upload & Ask", "📈 Evaluation Results", "🔬 System Internals"])
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# TAB 1 — UPLOAD & ASK
-# ──────────────────────────────────────────────────────────────────────────────
 
 with tab1:
     col_upload, col_qa = st.columns([1, 1.6], gap="large")
 
-    # ── Left column: upload ────────────────────────────────────────────────────
     with col_upload:
         st.subheader("Step 1 — Upload Financial PDF")
 
@@ -185,7 +172,6 @@ with tab1:
                     try:
                         from pipeline import ingest_document
 
-                        # Write to a temp file so pdfplumber can open it by path
                         with tempfile.NamedTemporaryFile(
                             delete=False, suffix=".pdf",
                             prefix=uploaded_file.name.replace(".pdf", "_"),
@@ -211,7 +197,6 @@ with tab1:
                     except Exception as e:
                         st.error(f"Indexing failed: {e}")
 
-        # Show currently indexed documents
         st.markdown("---")
         st.subheader("📚 Indexed Documents")
 
@@ -253,11 +238,9 @@ with tab1:
         except Exception:
             st.info("Index not yet initialised.")
 
-    # ── Right column: Q&A ─────────────────────────────────────────────────────
     with col_qa:
         st.subheader("Step 2 — Ask a Question")
 
-        # Preset example questions
         example_qs = [
             "Custom question...",
             "What was the total net revenue or sales?",
@@ -278,7 +261,6 @@ with tab1:
         else:
             question = st.text_area("Your question:", value=selected_example, height=100)
 
-        # Document filter
         try:
             from pipeline import list_indexed_documents
             docs = list_indexed_documents()
@@ -302,8 +284,6 @@ with tab1:
 
                     embedder = load_embedder()
                     store = load_store()
-                    # Resolve the LLM chain live (uncached) so a key entered in
-                    # the sidebar this session takes effect immediately.
                     qa = get_qa_chain()
 
                     t0 = time.perf_counter()
@@ -316,14 +296,12 @@ with tab1:
                     result = qa.answer(question=question, context_chunks=chunks)
                     elapsed = time.perf_counter() - t0
 
-                    # ── Answer ─────────────────────────────────────────────────
                     st.markdown("#### 💬 Answer")
                     st.markdown(
                         f'<div class="answer-box">{result["answer"]}</div>',
                         unsafe_allow_html=True,
                     )
 
-                    # ── Sources ────────────────────────────────────────────────
                     if result.get("sources"):
                         st.markdown(f"#### 📎 Sources ({len(result['sources'])} retrieved)")
                         for s in result["sources"]:
@@ -338,7 +316,6 @@ with tab1:
                                 unsafe_allow_html=True,
                             )
 
-                    # ── Stats ──────────────────────────────────────────────────
                     with st.expander("⚡ Performance stats"):
                         col_a, col_b, col_c = st.columns(3)
                         col_a.metric("Total latency", f"{elapsed:.2f}s")
@@ -351,9 +328,6 @@ with tab1:
                     st.info("Make sure you have indexed at least one document first.")
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# TAB 2 — EVALUATION RESULTS
-# ──────────────────────────────────────────────────────────────────────────────
 
 with tab2:
     st.subheader("Evaluation Results — Live Experimental Data")
@@ -365,7 +339,6 @@ with tab2:
         "is used, so no API key is required."
     )
 
-    # Load saved results
     import json, glob as _glob
     result_files = sorted(_glob.glob(
         "evaluation/results/evaluation_*.json"
@@ -375,7 +348,6 @@ with tab2:
         with open(result_files[0]) as f:
             eval_data = json.load(f)
 
-        # ── Experiment 1: Baseline Comparison ─────────────────────────────────
         st.markdown("---")
         st.markdown("### Experiment 1 — Embedding Baseline Comparison")
         st.markdown(
@@ -398,7 +370,6 @@ with tab2:
                     col.metric("Hit@3", f"{hit3:.3f}")
                     col.metric("MRR", f"{mrr:.3f}")
 
-        # ── Experiment 2: RAG vs No-RAG ───────────────────────────────────────
         st.markdown("---")
         st.markdown("### Experiment 2 — RAG vs No-RAG")
         st.markdown(
@@ -429,7 +400,6 @@ with tab2:
                 "reported signal (see report §6.3.2)."
             )
 
-        # ── Experiment 3: Full Benchmark ──────────────────────────────────────
         st.markdown("---")
         st.markdown("### Experiment 3 — Intrinsic Embedding Benchmark")
         st.markdown(
@@ -474,9 +444,6 @@ with tab2:
                 st.json({"embedding_baseline": r1, "rag_vs_norag": r2})
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# TAB 3 — SYSTEM INTERNALS
-# ──────────────────────────────────────────────────────────────────────────────
 
 with tab3:
     st.subheader("System Internals — How the Pipeline Works")

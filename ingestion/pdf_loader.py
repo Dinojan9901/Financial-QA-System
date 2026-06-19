@@ -21,7 +21,7 @@ class FinancialPDFLoader:
         if not self.file_path.exists():
             raise FileNotFoundError(f"PDF not found: {file_path}")
 
-    # ── Public API ────────────────────────────────────────────────────────────
+
 
     def extract_text(self) -> List[Dict]:
         """
@@ -45,7 +45,7 @@ class FinancialPDFLoader:
         except Exception:
             return {"file_name": self.file_path.name, "total_pages": 0, "file_size_kb": 0}
 
-    # ── Extraction strategies ─────────────────────────────────────────────────
+
 
     def _extract_with_pdfplumber(self) -> List[Dict]:
         """Primary: pdfplumber handles tables and complex layouts well."""
@@ -89,7 +89,7 @@ class FinancialPDFLoader:
             print(f"[PyPDF2] failed: {e}")
         return pages
 
-    # ── Helpers ───────────────────────────────────────────────────────────────
+
 
     def _tables_to_text(self, tables: list) -> str:
         """Convert extracted table rows to pipe-separated readable text."""

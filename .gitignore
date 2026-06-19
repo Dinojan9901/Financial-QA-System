@@ -53,12 +53,22 @@ Thumbs.db
 *.log
 *.out
 
+# LaTeX build artifacts
+*.aux
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
 # Data & temporary storage
 data/uploads/
 data/chroma_db/
 .chroma/
 *.sqlite
 *.sqlite3
+
+# Timestamped evaluation outputs
+evaluation/results/evaluation_*.json
 
 # Streamlit
 .streamlit/
@@ -86,4 +96,3 @@ models/
 # Local development
 .claude/
 *.code-workspace
-

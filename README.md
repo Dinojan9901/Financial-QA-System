@@ -27,12 +27,12 @@ Opens at **http://localhost:8501** — upload a PDF, ask questions, view evaluat
 - **Prompt Engineering:** Systematic 7-rule system prompt, chain-of-thought, few-shot learning
 
 ✅ **Demonstrated Results**
-- MRR = 1.000 (perfect retrieval on 5 test cases)
-- 0 hallucinations (vs 1/5 for No-RAG baseline)
-- Keyword Hit Rate = 1.000 (100% financial metric extraction)
+- MRR = 1.000 for MiniLM retrieval on the 50-sample evaluation
+- 0 hallucinations in the saved RAG and No-RAG comparison
+- RAG Keyword Hit Rate = 0.840, far above No-RAG at 0.008
 
 ✅ **Three Deliverables** (All Included)
-1. **Final Report** — `report/main.pdf` (19 pages, LaTeX, fully formatted)
+1. **Final Report** — `report/main.pdf` (22 total pages; body under the 20-page limit, excluding references and appendices)
 2. **Demonstrable Output** — `app.py` (Streamlit web UI) + `demo.py` (terminal demo)
 3. **Python Code & Notebooks** — 28 source files + Jupyter notebook + evaluation modules
 
@@ -141,13 +141,13 @@ python pipeline.py apple_10k_2023.pdf "What was the total revenue in fiscal 2023
 Three evaluation experiments with **live results** in the Streamlit app:
 
 ### Experiment 1: Embedding Baseline Comparison
-Compares TF-IDF, Word2Vec, and SentenceTransformer on 5 financial queries:
+Compares TF-IDF, Word2Vec, and SentenceTransformer on 50 financial-qa-10K questions:
 
 | Method | Precision@3 | MRR | Query Time |
 |---|---|---|---|
-| TF-IDF | 0.333 | 0.800 | 4.9 ms |
-| Word2Vec | 0.200 | 0.517 | 2.0 ms |
-| **MiniLM-L6-v2** | **0.400** | **1.000** | 89.0 ms |
+| TF-IDF | 0.620 | 0.963 | 10.09 ms |
+| Word2Vec | 0.447 | 0.717 | 5.57 ms |
+| **MiniLM-L6-v2** | **0.580** | **1.000** | 177.19 ms |
 
 **Key Finding:** Sentence-transformers achieve perfect (1.000) MRR — correct document always ranked first.
 
@@ -156,11 +156,11 @@ Compares three answer strategies:
 
 | Strategy | Keyword Hit Rate | Faithfulness | Hallucinations |
 |---|---|---|---|
-| No-RAG (LLM only) | 0.400 | 0.600 | 1/5 ❌ |
-| Random Context | 0.200 | 1.000 | 0/5 |
-| **RAG (Proposed)** | **1.000** | **1.000** | **0/5** ✅ |
+| No-RAG (LLM only) | 0.008 | 1.000 | 0/50 |
+| Random Context | 0.133 | 1.000 | 0/50 |
+| **RAG (Proposed)** | **0.840** | **1.000** | **0/50** |
 
-**Key Finding:** RAG achieves 100% keyword hit rate and zero hallucinations.
+**Key Finding:** RAG substantially improves keyword grounding while preserving zero hallucinations in the saved 50-sample run.
 
 ### Experiment 3: Full Embedding Benchmark
 Comprehensive metrics for all models (P₁, MRR, NDCG₃, separability gap).

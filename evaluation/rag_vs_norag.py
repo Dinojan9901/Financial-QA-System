@@ -27,13 +27,11 @@ Works in LOCAL MODE (no OpenAI key):
 """
 
 import random
-import time
 from typing import List, Dict, Optional
 
 import numpy as np
 
 
-# ── Test corpus (simulated financial document) ────────────────────────────────
 
 DOCUMENT_CHUNKS = [
     "Total net revenues were $383.3 billion for fiscal year 2023, compared to $394.3 billion in fiscal 2022, a decrease of 2.8%.",
@@ -82,7 +80,6 @@ EVAL_QUESTIONS = [
 ]
 
 
-# ── Metrics ───────────────────────────────────────────────────────────────────
 
 def keyword_hit_rate(answer: str, keywords: List[str]) -> float:
     """Fraction of expected keywords found in the answer."""
@@ -125,7 +122,6 @@ def hallucination_indicator(answer: str, context_chunks: List[str]) -> bool:
     return len(novel_numbers) > 0
 
 
-# ── Strategy A: No-RAG ────────────────────────────────────────────────────────
 
 def strategy_norag_local(question: str) -> Dict:
     """
@@ -151,7 +147,6 @@ def strategy_norag_local(question: str) -> Dict:
     }
 
 
-# ── Strategy B: RAG ───────────────────────────────────────────────────────────
 
 def strategy_rag_local(question: str, relevant_indices: List[int]) -> Dict:
     """
@@ -163,7 +158,6 @@ def strategy_rag_local(question: str, relevant_indices: List[int]) -> Dict:
     return {"answer": answer, "context_used": context, "strategy": "RAG"}
 
 
-# ── Strategy C: Random Context ────────────────────────────────────────────────
 
 def strategy_random_context(question: str, relevant_indices: List[int]) -> Dict:
     """
@@ -178,7 +172,6 @@ def strategy_random_context(question: str, relevant_indices: List[int]) -> Dict:
     return {"answer": answer, "context_used": context, "strategy": "Random Context"}
 
 
-# ── Main Evaluation ───────────────────────────────────────────────────────────
 
 def run_rag_vs_norag(openai_key: Optional[str] = None, verbose: bool = True) -> Dict:
     """
@@ -233,7 +226,6 @@ def run_rag_vs_norag(openai_key: Optional[str] = None, verbose: bool = True) -> 
             print(f"\nQ{i+1}: {question}")
             print("-" * 60)
 
-        # ── Strategy A: No-RAG ────────────────────────────────────────────────
         if use_llm:
             response = client.chat.completions.create(
                 model="gpt-4o-mini",
@@ -244,11 +236,9 @@ def run_rag_vs_norag(openai_key: Optional[str] = None, verbose: bool = True) -> 
                 temperature=0.1, max_tokens=200,
             )
             norag_answer = response.choices[0].message.content
-            norag_context = []
         else:
             result = strategy_norag_local(question)
             norag_answer = result["answer"]
-            norag_context = []
 
         norag_khr = keyword_hit_rate(norag_answer, keywords)
         norag_faith = faithfulness_score(norag_answer, DOCUMENT_CHUNKS)
@@ -262,7 +252,6 @@ def run_rag_vs_norag(openai_key: Optional[str] = None, verbose: bool = True) -> 
             print(f"  [No-RAG]         KHR={norag_khr:.2f} | Faith={norag_faith:.2f} | "
                   f"Hallucination={'YES' if norag_hall else 'no'}")
 
-        # ── Strategy C: Random Context ─────────────────────────────────────────
         rand_result = strategy_random_context(question, rel_idx)
         rand_context = rand_result["context_used"]
         if use_llm:
@@ -291,7 +280,6 @@ def run_rag_vs_norag(openai_key: Optional[str] = None, verbose: bool = True) -> 
             print(f"  [Random Context] KHR={rand_khr:.2f} | Faith={rand_faith:.2f} | "
                   f"Hallucination={'YES' if rand_hall else 'no'}")
 
-        # ── Strategy B: RAG ───────────────────────────────────────────────────
         rag_result = strategy_rag_local(question, rel_idx)
         rag_context = rag_result["context_used"]
         if use_llm:
@@ -323,7 +311,6 @@ def run_rag_vs_norag(openai_key: Optional[str] = None, verbose: bool = True) -> 
             print(f"  [RAG]            KHR={rag_khr:.2f} | Faith={rag_faith:.2f} | "
                   f"Hallucination={'YES' if rag_hall else 'no'}")
 
-    # ── Summary ───────────────────────────────────────────────────────────────
     print("\n" + "="*70)
     print("SUMMARY TABLE")
     print("="*70)

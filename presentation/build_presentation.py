@@ -15,7 +15,7 @@ Output:
 
 import os
 from pptx import Presentation
-from pptx.util import Inches, Pt, Emu
+from pptx.util import Inches, Pt
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.dml.color import RGBColor
@@ -595,9 +595,9 @@ table.columns[3].width = Inches(1.4)
 
 headers = ["Method", "P₃", "MRR", "Latency"]
 rows = [
-    ("TF-IDF (sparse, n-gram)",          "0.333", "0.800", "4.9 ms"),
-    ("Word2Vec (skip-gram, d=100)",      "0.200", "0.517", "2.0 ms"),
-    ("MiniLM-L6-v2  ← proposed",         "0.400", "1.000", "89.0 ms"),
+    ("TF-IDF (sparse, n-gram)",          "0.620", "0.963", "10.09 ms"),
+    ("Word2Vec (skip-gram, d=100)",      "0.447", "0.717", "5.57 ms"),
+    ("MiniLM-L6-v2  ← proposed",         "0.580", "1.000", "177.19 ms"),
 ]
 
 # Header row
@@ -662,26 +662,26 @@ s = prs.slides.add_slide(BLANK)
 add_bg(s)
 add_header_bar(s, "Experiment 2: RAG vs No-RAG — Why Retrieval Matters")
 
-add_text(s, "Same 5 financial questions, three answer strategies. Which approach hallucinates?",
+add_text(s, "50 financial-qa-10K questions, three answer strategies. Which approach stays grounded?",
          Inches(0.5), Inches(1.0), Inches(12.3), Inches(0.4),
          size=14, italic=True, color=GREY, align=PP_ALIGN.CENTER)
 
 # Three comparison cards
 cards = [
     ("No-RAG", "LLM alone, no document",
-     [("Keyword Hit Rate", "0.400"),
-      ("Faithfulness",     "0.600"),
-      ("Hallucinations",   "1 / 5")],
+     [("Keyword Hit Rate", "0.008"),
+      ("Faithfulness",     "1.000"),
+      ("Hallucinations",   "0 / 50")],
      RED, RGBColor(0xFF, 0xEB, 0xEE)),
     ("Random Context", "Irrelevant chunks fed in",
-     [("Keyword Hit Rate", "0.200"),
+     [("Keyword Hit Rate", "0.133"),
       ("Faithfulness",     "1.000"),
-      ("Hallucinations",   "0 / 5")],
+      ("Hallucinations",   "0 / 50")],
      ORANGE, LIGHT_GOLD),
     ("RAG (Proposed)", "Correctly retrieved chunks",
-     [("Keyword Hit Rate", "1.000"),
+     [("Keyword Hit Rate", "0.840"),
       ("Faithfulness",     "1.000"),
-      ("Hallucinations",   "0 / 5")],
+      ("Hallucinations",   "0 / 50")],
      GREEN, LIGHT_GREEN),
 ]
 
@@ -808,7 +808,7 @@ add_text(s, "Deliverables Submitted:",
          Inches(0.5), Inches(5.0), Inches(12.3), Inches(0.5),
          size=18, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
 
-delivs = "Final Report (PDF, 19 pages, LaTeX)   •   Working Web App   •   Source Code   •   This Video"
+delivs = "Final Report (body under 20-page limit)   •   Working Web App   •   Source Code   •   This Video"
 add_text(s, delivs, Inches(0.5), Inches(5.5), Inches(12.3), Inches(0.5),
          size=14, color=WHITE, align=PP_ALIGN.CENTER, italic=True)
 
