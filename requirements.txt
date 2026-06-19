@@ -11,6 +11,7 @@ pdfplumber==0.11.4
 
 # ── Vector database ───────────────────────────────────────────────────────────
 chromadb==0.5.5
+posthog<3.0                    # pin: chromadb 0.5.x telemetry is incompatible with posthog>=3.0
 faiss-cpu==1.8.0
 
 # ── API server ────────────────────────────────────────────────────────────────
