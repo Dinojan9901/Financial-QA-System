@@ -1,107 +1,129 @@
-# Deploying to Railway (Free, ~10 minutes)
+# Deploying the Web App (Free Options)
 
-This guide deploys the **Streamlit web app** to a public URL on
-[Railway](https://railway.app). Railway auto-detects the `Dockerfile` and runs
-the app on its platform-provided `$PORT`.
+The demo is a **Streamlit app**. The two genuinely free, no-credit-card ways to
+put it online are **Streamlit Community Cloud** (simplest) and **Hugging Face
+Spaces** (more RAM). Railway is also covered at the bottom, but note Railway is
+now a **paid/trial** service (its "$5.00 left / upgrade" banner means the free
+trial credit is limited) — prefer the free options below.
 
 > The app runs in **free local mode** by default (MiniLM embeddings, retrieval
 > only). Add a free `GROQ_API_KEY` to enable real LLM-generated answers.
 
 ---
 
-## What's already configured for you
+## ⭐ Option 1 — Streamlit Community Cloud (recommended, 100% free)
 
-| File | Purpose |
-|------|---------|
-| `Dockerfile` | Builds the app; binds Streamlit to Railway's `$PORT` |
-| `railway.json` | Start command, health check (`/_stcore/health`), restart policy |
-| `.dockerignore` | Keeps the image lean (excludes venv, PDFs, local DB, caches) |
+Purpose-built for Streamlit apps. No credit card, no trial limit.
 
-You don't need to edit any of these.
-
----
-
-## Step 1 — Push the project to GitHub
-
-If the repo isn't on GitHub yet:
+### Step 1 — Push the project to GitHub (public repo)
 
 ```bash
 cd financial-qa-system
 git init
 git add .
-git commit -m "Financial Document Q&A System — Railway ready"
-# create an empty repo on github.com first, then:
+git commit -m "Financial Document Q&A System"
+# create an empty PUBLIC repo on github.com first, then:
 git remote add origin https://github.com/<your-username>/financial-qa-system.git
 git branch -M main
 git push -u origin main
 ```
 
-> ✅ `.env` is gitignored, so your `GROQ_API_KEY` is **not** pushed. You'll add
-> it as a Railway environment variable instead (Step 3).
+> ✅ `.env` is gitignored, so your `GROQ_API_KEY` is **not** pushed — you'll add
+> it in the Streamlit Secrets UI instead.
+
+### Step 2 — Create the app
+
+1. Go to **https://share.streamlit.io** and sign in with GitHub (free).
+2. Click **Create app** → **Deploy a public app from GitHub**.
+3. Fill in:
+   - **Repository:** `<your-username>/financial-qa-system`
+   - **Branch:** `main`
+   - **Main file path:** `app.py`  *(if your repo's root is the parent folder,
+     use `financial-qa-system/app.py`)*
+
+### Step 3 — Add your secret (enables free Groq answers)
+
+Before clicking Deploy, open **Advanced settings → Secrets** and paste:
+
+```toml
+GROQ_API_KEY = "gsk_your_key_here"
+USE_LOCAL_MODELS = "true"
+LLM_PROVIDER = "auto"
+```
+
+(Optional) set **Python version** to 3.12 or 3.13 in Advanced settings.
+
+### Step 4 — Deploy
+
+Click **Deploy**. First build takes ~3–7 min (installs PyTorch). You get a URL
+like `https://<your-app>.streamlit.app`. Put this in your report and video.
+
+> **Resource note:** the free tier gives ~1 GB RAM. The MiniLM model is small,
+> so it normally fits, but if the app is killed for memory, use **Option 2
+> (Hugging Face Spaces)** which offers far more RAM for free.
 
 ---
 
-## Step 2 — Create the Railway project
+## Option 2 — Hugging Face Spaces (free, more RAM — best for ML apps)
 
-1. Go to **https://railway.app** and sign in with GitHub (free).
-2. Click **New Project** → **Deploy from GitHub repo**.
-3. Select your `financial-qa-system` repository.
-4. Railway detects the `Dockerfile` and starts the first build automatically.
-   (The first build takes ~3–6 min — it installs PyTorch and friends.)
+Free "CPU basic" Spaces give **16 GB RAM** — very comfortable for PyTorch.
 
----
+1. Go to **https://huggingface.co/new-space**, sign in (free).
+2. **Space name:** `financial-qa-system` · **SDK:** select **Streamlit** ·
+   **Hardware:** CPU basic (free) · Visibility: Public.
+3. Push your code to the Space's git repo (it gives you the remote URL), or use
+   **Files → Upload** to add the project files. Ensure `app.py` and
+   `requirements.txt` are at the Space root.
+4. In **Settings → Variables and secrets**, add a secret:
+   `GROQ_API_KEY = gsk_...` (and optionally `LLM_PROVIDER=auto`,
+   `USE_LOCAL_MODELS=true`).
+5. The Space builds and serves the app at
+   `https://huggingface.co/spaces/<you>/financial-qa-system`.
 
-## Step 3 — Add your environment variables
-
-In the Railway project → **Variables** tab, add:
-
-| Variable | Value | Notes |
-|----------|-------|-------|
-| `GROQ_API_KEY` | `gsk_...` | Free key from console.groq.com/keys — enables real LLM answers |
-| `USE_LOCAL_MODELS` | `true` | Keep embeddings on free local MiniLM |
-| `LLM_PROVIDER` | `auto` | Uses Groq when the key is present |
-
-Click **Deploy** (or it redeploys automatically when variables change).
-
-> Without `GROQ_API_KEY` the app still works — it returns the most relevant
-> retrieved passage instead of an LLM-written answer.
+> Spaces secrets are exposed as environment variables, which the app reads
+> automatically (no code change needed).
 
 ---
 
-## Step 4 — Generate a public URL
+## Option 3 — Railway (Dockerfile-based; trial/paid)
 
-1. Go to **Settings** → **Networking** → **Generate Domain**.
-2. Railway gives you a URL like `https://financial-qa-system-production.up.railway.app`.
-3. Open it — the Streamlit app loads. 🎉
+Railway gives a one-time **$5 trial credit**, then requires a paid plan to keep
+services online — so use it only if you specifically want a Docker deploy. The
+repo already includes `Dockerfile`, `railway.json`, and `.dockerignore`.
 
-Put this URL in your report and video as the **live deployment**.
+1. Push to GitHub (as in Option 1, Step 1).
+2. **railway.app** → New Project → Deploy from GitHub repo → pick your repo
+   (it auto-detects the `Dockerfile`).
+3. **Variables** tab → add `GROQ_API_KEY`, `USE_LOCAL_MODELS=true`,
+   `LLM_PROVIDER=auto`.
+4. **Settings → Networking → Generate Domain** → public URL.
 
 ---
 
-## Step 5 — Verify it works
+## Verify any deployment
 
 1. Open the URL.
-2. In the sidebar, confirm the generation badge (🟢 Groq if you added the key).
+2. Sidebar shows the generation badge (🟢 Groq when the key is set).
 3. Upload a financial PDF → **Index** → ask a question.
-4. Check the **Evaluation Results** tab shows the real-dataset metrics.
+4. The **Evaluation Results** tab shows the real-dataset metrics.
 
 ---
 
 ## Important notes
 
-- **Ephemeral storage:** Railway's filesystem resets on each redeploy/restart,
-  so uploaded PDFs and the ChromaDB index do **not** persist across deploys.
-  This is fine for a live demo (upload + query in one session). For permanent
-  storage, attach a Railway **Volume** mounted at `/app/data`, or swap ChromaDB
-  for a hosted vector DB (e.g. Pinecone) as described in the project guide.
+- **Ephemeral storage:** on all these platforms the filesystem resets on each
+  redeploy/restart, so uploaded PDFs and the ChromaDB index do **not** persist
+  across deploys. This is fine for a live demo (upload + query in one session).
+  For permanent storage, attach a persistent volume or swap ChromaDB for a
+  hosted vector DB (e.g. Pinecone) as described in the project guide.
 - **Cold start:** the MiniLM model (~90 MB) downloads on the first question of a
   fresh container, so the first answer may take ~20–30 s. Subsequent queries are
   fast.
-- **Memory:** PyTorch + sentence-transformers need ~1 GB RAM. Railway's Hobby
-  plan is comfortable; if a build/run is killed for memory, upgrade the plan or
-  reduce concurrency.
-- **Cost:** Railway's trial credit covers a demo; the Hobby plan is low-cost.
-  Groq generation stays free.
+- **Memory:** PyTorch + sentence-transformers need ~1 GB RAM. Hugging Face Spaces
+  (16 GB free) is the most comfortable; Streamlit Community Cloud (~1 GB) usually
+  fits the small MiniLM model but is tighter.
+- **Cost:** Streamlit Community Cloud and Hugging Face Spaces are free with no
+  card. Groq generation stays free. Railway is trial/paid.
 
 ---
 

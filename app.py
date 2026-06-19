@@ -18,6 +18,15 @@ os.environ.setdefault("USE_LOCAL_MODELS", "true")
 from dotenv import load_dotenv
 load_dotenv()
 
+# On Streamlit Community Cloud / HF Spaces, secrets are provided via st.secrets.
+# Bridge them into os.environ so the env-based config (config.py) picks them up.
+try:
+    for _k in ("GROQ_API_KEY", "OPENAI_API_KEY", "LLM_PROVIDER", "USE_LOCAL_MODELS"):
+        if _k in st.secrets and str(st.secrets[_k]).strip():
+            os.environ[_k] = str(st.secrets[_k])
+except Exception:
+    pass  # no secrets file locally — that's fine
+
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Financial Document Q&A",
@@ -97,19 +106,23 @@ with st.sidebar:
 
     # Embeddings always stay on the free local MiniLM model.
     os.environ["USE_LOCAL_MODELS"] = "true"
+    # A key typed here overrides; if blank, keep any key already provided via
+    # .env or Streamlit/HF secrets (so a deployed key isn't clobbered).
     if groq_key:
         os.environ["GROQ_API_KEY"] = groq_key
         os.environ["LLM_PROVIDER"] = "groq"
     elif openai_key:
         os.environ["OPENAI_API_KEY"] = openai_key
         os.environ["LLM_PROVIDER"] = "openai"
-    else:
-        os.environ["LLM_PROVIDER"] = "local"
+    elif os.getenv("LLM_PROVIDER") not in ("groq", "openai"):
+        os.environ["LLM_PROVIDER"] = "auto"  # let config resolve from secrets/.env
 
-    # Show which mode is active so the user has clear feedback.
-    if groq_key:
+    # Show the truly active provider (resolved from sidebar + secrets + .env).
+    from config import resolve_llm_provider
+    _active, _, _, _model = resolve_llm_provider()
+    if _active == "groq":
         st.success("🟢 Generation: Groq (Llama 3.3 70B)")
-    elif openai_key:
+    elif _active == "openai":
         st.success("🟢 Generation: OpenAI (GPT-4o-mini)")
     else:
         st.info("🔵 Generation: local retrieval-only (no key)")
