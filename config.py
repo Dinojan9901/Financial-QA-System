@@ -14,30 +14,26 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 Path(CHROMA_DB_PATH).mkdir(parents=True, exist_ok=True)
 
 # ── Model selection ──────────────────────────────────────────────────────────
-# Set USE_LOCAL_MODELS=true in .env to run fully free with sentence-transformers
-USE_LOCAL_MODELS = os.getenv("USE_LOCAL_MODELS", "false").lower() == "true"
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+# The project uses one free local embedding model.
 
 # ── Embedding settings ───────────────────────────────────────────────────────
-if USE_LOCAL_MODELS:
-    EMBEDDING_MODEL = "all-MiniLM-L6-v2"   # free, 384-dim
-    EMBEDDING_DIMENSIONS = 384
-else:
-    EMBEDDING_MODEL = "text-embedding-3-small"  # OpenAI, 1536-dim
-    EMBEDDING_DIMENSIONS = 1536
+EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+EMBEDDING_DIMENSIONS = 384
+TOKENIZER_ENCODING = "cl100k_base"
 
 # ── LLM settings ─────────────────────────────────────────────────────────────
-LLM_MODEL = "gpt-4o-mini"          # cheap + good for Q&A
-LLM_TEMPERATURE = 0.1              # low = factual, not creative
-LLM_MAX_TOKENS = 1000
 
 # ── Chunking settings ────────────────────────────────────────────────────────
-CHUNK_SIZE = 800        # tokens per chunk (sweet spot for financial docs)
-CHUNK_OVERLAP = 150     # ~18% overlap to preserve context at boundaries
+CHUNK_SIZE = 200        # avoids truncation by MiniLM's 256-token input limit
+CHUNK_OVERLAP = 40      # 20% overlap preserves context at boundaries
 
 # ── Retrieval settings ───────────────────────────────────────────────────────
 TOP_K_RESULTS = 5       # number of chunks to retrieve per query
 COLLECTION_NAME = "financial_documents"
+
+# ── HuggingFace Inference API ─────────────────────────────────────────────────
+HF_TOKEN = os.getenv("HF_TOKEN", "")
+HF_MODEL  = os.getenv("HF_MODEL", "mistralai/Mistral-7B-Instruct-v0.3")
 
 # ── API settings ─────────────────────────────────────────────────────────────
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")

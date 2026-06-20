@@ -11,16 +11,9 @@ Usage:
 
 import argparse
 import json
-import os
 import sys
 from datetime import datetime
 from pathlib import Path
-
-from dotenv import load_dotenv
-
-load_dotenv()
-OPENAI_KEY = os.getenv("OPENAI_API_KEY") or None
-
 
 def run_all(save: bool = False):
     results = {}
@@ -37,14 +30,14 @@ def run_all(save: bool = False):
     print("#   Keyword Hit Rate · Faithfulness · Hallucination Rate")
     print("#"*70)
     from evaluation.rag_vs_norag import run_rag_vs_norag
-    results["rag_vs_norag"] = run_rag_vs_norag(openai_key=OPENAI_KEY, verbose=True)
+    results["rag_vs_norag"] = run_rag_vs_norag(verbose=True)
 
     print("\n" + "#"*70)
     print("# EVALUATION 3: EMBEDDING MODEL BENCHMARK")
     print("#   Precision@K · MRR · NDCG · Query Latency")
     print("#"*70)
     from evaluation.embedding_benchmark import run_embedding_benchmark
-    results["embedding_benchmark"] = run_embedding_benchmark(openai_key=OPENAI_KEY, verbose=True)
+    results["embedding_benchmark"] = run_embedding_benchmark(verbose=True)
 
     if save:
         out_dir = Path("evaluation/results")
@@ -78,11 +71,11 @@ def main():
 
     if args.ragvsnot:
         from evaluation.rag_vs_norag import run_rag_vs_norag
-        run_rag_vs_norag(openai_key=OPENAI_KEY, verbose=True)
+        run_rag_vs_norag(verbose=True)
 
     if args.benchmark:
         from evaluation.embedding_benchmark import run_embedding_benchmark
-        run_embedding_benchmark(openai_key=OPENAI_KEY, verbose=True)
+        run_embedding_benchmark(verbose=True)
 
 
 if __name__ == "__main__":

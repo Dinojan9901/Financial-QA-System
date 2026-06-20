@@ -1,0 +1,22 @@
+=== STEP 6: EXTRACTIVE ANSWER ===
+Question      : What were the operating expenses?
+Model         : all-MiniLM-L6-v2-extractive
+Chunks used   : 4
+
+The system split all retrieved chunks into individual sentences,
+embedded each sentence, and returned the one most similar to your question.
+
+────────────────────────────────────────────────────────
+ANSWER
+────────────────────────────────────────────────────────
+Answer (Page 1, relevance=0.65):
+
+Operating expenses for the quarter were USD 8.1 million.
+
+────────────────────────────────────────────────────────
+ALL SOURCES (ranked by chunk relevance)
+────────────────────────────────────────────────────────
+  Page 1  |  sample_financial_document_rag.pdf  |  chunk relevance=0.427
+  Page 1  |  acme_report.pdf  |  chunk relevance=0.427
+  Page 1  |  sample_financial_document_rag.pdf  |  chunk relevance=0.355
+  Page 1  |  acme_report.pdf  |  chunk relevance=0.355

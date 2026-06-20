@@ -5,7 +5,6 @@ Models benchmarked:
   1. Word2Vec (skip-gram, trained on corpus)      — classic NLP baseline
   2. TF-IDF (sparse bag-of-words)                 — traditional IR baseline
   3. all-MiniLM-L6-v2 (sentence-transformers)     — our free local model
-  4. text-embedding-3-small (OpenAI)              — our production model [optional]
 
 This module provides:
   • Semantic similarity tests (do similar sentences get close vectors?)
@@ -19,7 +18,7 @@ under "Experimental Setup & Results" and "Evaluation & Performance Metrics".
 
 import time
 import warnings
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
@@ -143,20 +142,9 @@ def _load_minilm():
     return embed, "MiniLM-L6-v2 (384-dim)"
 
 
-def _load_openai(api_key: str):
-    from openai import OpenAI
-    client = OpenAI(api_key=api_key)
-
-    def embed(text: str) -> np.ndarray:
-        resp = client.embeddings.create(model="text-embedding-3-small", input=text)
-        return np.array(resp.data[0].embedding)
-
-    return embed, "OpenAI text-emb-3-small"
-
-
 # ── Benchmark runner ──────────────────────────────────────────────────────────
 
-def run_embedding_benchmark(openai_key: Optional[str] = None, verbose: bool = True) -> Dict:
+def run_embedding_benchmark(verbose: bool = True) -> Dict:
     """
     Benchmark all embedding models on semantic similarity + retrieval tasks.
     Returns a results dict for report inclusion.
@@ -171,9 +159,6 @@ def run_embedding_benchmark(openai_key: Optional[str] = None, verbose: bool = Tr
     tfidf_embed, tfidf_name = _load_tfidf(all_text)
     minilm_embed, minilm_name = _load_minilm()
     models = [(w2v_embed, w2v_name), (tfidf_embed, tfidf_name), (minilm_embed, minilm_name)]
-    if openai_key:
-        oai_embed, oai_name = _load_openai(openai_key)
-        models.append((oai_embed, oai_name))
 
     results = {}
 
@@ -270,8 +255,4 @@ def run_embedding_benchmark(openai_key: Optional[str] = None, verbose: bool = Tr
 
 
 if __name__ == "__main__":
-    import os
-    from dotenv import load_dotenv
-    load_dotenv()
-    key = os.getenv("OPENAI_API_KEY") or None
-    run_embedding_benchmark(openai_key=key, verbose=True)
+    run_embedding_benchmark(verbose=True)

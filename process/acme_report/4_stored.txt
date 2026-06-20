@@ -1,0 +1,13 @@
+=== STEP 4: VECTOR STORE ===
+Collection    : financial_documents
+ChromaDB path : C:\Users\H.S.Thishon\OneDrive\Desktop\Project-AdvanceAI\Financial-QA-System\data\chroma_db
+Chunks before : 2
+Chunks after  : 4
+Added now     : 2
+
+All documents currently indexed in the database:
+  - acme_report.pdf
+  - sample_financial_document_rag.pdf
+
+If 'Added now' is 0, this PDF was already in the database (that is fine).
+If ChromaDB path does not exist or collection is empty, re-run ingestion.

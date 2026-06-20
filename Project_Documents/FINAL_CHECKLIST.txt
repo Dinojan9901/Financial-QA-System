@@ -55,12 +55,12 @@ DELIVERABLE 3: PYTHON CODE & NOTEBOOKS (Well-documented, Reproducible)
 
 Core Modules:
 ✅ ingestion/pdf_loader.py              - PDF text + table extraction
-✅ ingestion/text_chunker.py            - 800-token chunking
-✅ ingestion/embedder.py                - MiniLM-L6-v2 / OpenAI embeddings
+✅ ingestion/text_chunker.py            - 200-token chunking
+✅ ingestion/embedder.py                - all-MiniLM-L6-v2 embeddings
 ✅ retrieval/vector_store.py            - ChromaDB interface
 ✅ retrieval/retriever.py               - Retrieval API
 ✅ generation/prompt_builder.py         - Prompt engineering (7 rules)
-✅ generation/qa_chain.py               - GPT-4o-mini integration
+✅ generation/qa_chain.py               - LocalQAChain grounded excerpts
 ✅ api/routes.py                        - FastAPI endpoints
 ✅ api/schemas.py                       - Pydantic models
 
@@ -106,11 +106,11 @@ AI TECHNIQUES (Course Requirement: Minimum 3)
 ✅ Technique 1: Natural Language Processing
    - Text preprocessing (ligature fixing, whitespace normalization)
    - Word embeddings: Word2Vec (skip-gram), TF-IDF (sparse), MiniLM (contextual)
-   - Text chunking: 800 tokens, 150-token overlap
+   - Text chunking: 200 tokens, 40-token overlap
    - Files: ingestion/pdf_loader.py, ingestion/text_chunker.py, ingestion/embedder.py
 
 ✅ Technique 2: Large Language Models
-   - Model: GPT-4o-mini (Transformer decoder)
+   - Model: all-MiniLM-L6-v2 (Transformer encoder)
    - Temperature: 0.1 (factual output)
    - Free fallback: LocalQAChain (no API cost)
    - File: generation/qa_chain.py

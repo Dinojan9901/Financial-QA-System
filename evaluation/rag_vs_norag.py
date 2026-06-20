@@ -22,13 +22,12 @@ Metrics:
   • Response Length   — longer ≠ better, but too short = incomplete
   • Hallucination Indicator — answer contains facts not in any chunk
 
-Works in LOCAL MODE (no OpenAI key):
-  Compares retrieval quality (chunk relevance scores) instead of LLM outputs.
+Runs entirely locally with deterministic comparison answers.
 """
 
 import random
 import time
-from typing import List, Dict, Optional
+from typing import List, Dict
 
 import numpy as np
 
@@ -180,15 +179,9 @@ def strategy_random_context(question: str, relevant_indices: List[int]) -> Dict:
 
 # ── Main Evaluation ───────────────────────────────────────────────────────────
 
-def run_rag_vs_norag(openai_key: Optional[str] = None, verbose: bool = True) -> Dict:
-    """
-    Run the RAG vs No-RAG evaluation.
-
-    If openai_key is provided, calls the real GPT-4o-mini for strategies A and C.
-    Otherwise, runs in local simulation mode (free, no API calls).
-    """
+def run_rag_vs_norag(verbose: bool = True) -> Dict:
+    """Run the deterministic, fully local RAG vs No-RAG evaluation."""
     random.seed(42)
-    use_llm = openai_key is not None
 
     strategy_results: Dict[str, Dict] = {
         "No-RAG": {"keyword_hits": [], "faithfulness": [], "hallucination_count": 0},
@@ -196,15 +189,10 @@ def run_rag_vs_norag(openai_key: Optional[str] = None, verbose: bool = True) -> 
         "RAG": {"keyword_hits": [], "faithfulness": [], "hallucination_count": 0},
     }
 
-    if use_llm:
-        from openai import OpenAI
-        client = OpenAI(api_key=openai_key)
-
     print("\n" + "="*70)
     print("RAG vs NO-RAG EVALUATION")
     print("="*70)
-    if not use_llm:
-        print("Mode: LOCAL SIMULATION (set OPENAI_API_KEY for real LLM calls)\n")
+    print("Mode: LOCAL SIMULATION\n")
 
     for i, case in enumerate(EVAL_QUESTIONS):
         question = case["question"]
@@ -216,21 +204,9 @@ def run_rag_vs_norag(openai_key: Optional[str] = None, verbose: bool = True) -> 
             print("-" * 60)
 
         # ── Strategy A: No-RAG ────────────────────────────────────────────────
-        if use_llm:
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": "Answer the financial question concisely."},
-                    {"role": "user", "content": question},
-                ],
-                temperature=0.1, max_tokens=200,
-            )
-            norag_answer = response.choices[0].message.content
-            norag_context = []
-        else:
-            result = strategy_norag_local(question)
-            norag_answer = result["answer"]
-            norag_context = []
+        result = strategy_norag_local(question)
+        norag_answer = result["answer"]
+        norag_context = []
 
         norag_khr = keyword_hit_rate(norag_answer, keywords)
         norag_faith = faithfulness_score(norag_answer, DOCUMENT_CHUNKS)
@@ -247,19 +223,7 @@ def run_rag_vs_norag(openai_key: Optional[str] = None, verbose: bool = True) -> 
         # ── Strategy C: Random Context ─────────────────────────────────────────
         rand_result = strategy_random_context(question, rel_idx)
         rand_context = rand_result["context_used"]
-        if use_llm:
-            context_str = "\n".join(rand_context)
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": "Answer only using the provided context."},
-                    {"role": "user", "content": f"Context:\n{context_str}\n\nQuestion: {question}"},
-                ],
-                temperature=0.1, max_tokens=200,
-            )
-            rand_answer = response.choices[0].message.content
-        else:
-            rand_answer = rand_result["answer"]
+        rand_answer = rand_result["answer"]
 
         rand_khr = keyword_hit_rate(rand_answer, keywords)
         rand_faith = faithfulness_score(rand_answer, rand_context)
@@ -276,22 +240,7 @@ def run_rag_vs_norag(openai_key: Optional[str] = None, verbose: bool = True) -> 
         # ── Strategy B: RAG ───────────────────────────────────────────────────
         rag_result = strategy_rag_local(question, rel_idx)
         rag_context = rag_result["context_used"]
-        if use_llm:
-            context_str = "\n".join(rag_context)
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": (
-                        "You are a financial analyst. Answer using ONLY the provided document excerpts. "
-                        "Cite page numbers if available. Do not speculate."
-                    )},
-                    {"role": "user", "content": f"Document Excerpts:\n{context_str}\n\nQuestion: {question}"},
-                ],
-                temperature=0.1, max_tokens=200,
-            )
-            rag_answer = response.choices[0].message.content
-        else:
-            rag_answer = rag_result["answer"]
+        rag_answer = rag_result["answer"]
 
         rag_khr = keyword_hit_rate(rag_answer, keywords)
         rag_faith = faithfulness_score(rag_answer, rag_context)
@@ -332,8 +281,4 @@ def run_rag_vs_norag(openai_key: Optional[str] = None, verbose: bool = True) -> 
 
 
 if __name__ == "__main__":
-    import os
-    from dotenv import load_dotenv
-    load_dotenv()
-    key = os.getenv("OPENAI_API_KEY") or None
-    run_rag_vs_norag(openai_key=key, verbose=True)
+    run_rag_vs_norag(verbose=True)

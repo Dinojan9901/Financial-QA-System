@@ -59,8 +59,8 @@
 
 **1. `ingestion/` — NLP & PDF Processing**
 - `pdf_loader.py` — pdfplumber-based text and table extraction
-- `text_chunker.py` — 800-token chunks with 150-token overlap (LangChain RecursiveCharacterTextSplitter)
-- `embedder.py` — MiniLM-L6-v2 or OpenAI text-embedding-3-small
+- `text_chunker.py` — 200-token chunks with 40-token overlap
+- `embedder.py` — all-MiniLM-L6-v2 local embeddings
 
 **2. `retrieval/` — Vector Search**
 - `vector_store.py` — ChromaDB CRUD operations, cosine ANN search
@@ -68,7 +68,7 @@
 
 **3. `generation/` — LLM Integration & Prompt Engineering**
 - `prompt_builder.py` — System prompt with 7 critical rules, chain-of-thought, 2-shot examples
-- `qa_chain.py` — GPT-4o-mini integration with LocalQAChain fallback
+- `qa_chain.py` — retrieval-only grounded response formatting
 
 **4. `api/` — REST Service**
 - `routes.py` — FastAPI endpoints (/ingest, /ask, /documents, /health)
@@ -178,12 +178,12 @@ RAG ✅               1.000  1.000          0/5 (perfect!)
 - Word embeddings: Word2Vec (skip-gram, d=100) baseline comparison
 - TF-IDF: sparse n-gram vectorisation (2-gram, 1-gram)
 - Sentence-Transformers: `all-MiniLM-L6-v2` (384-dim contextual embeddings)
-- Text chunking: 800-token chunks with 150-token overlap via RecursiveCharacterTextSplitter
+- Text chunking: 200-token chunks with 40-token overlap
 
 ### ✅ Technique 2: Large Language Models
 **Files:** `generation/qa_chain.py`, `pipeline.py`
 
-- Model: GPT-4o-mini (OpenAI Chat Completions API)
+- Model: all-MiniLM-L6-v2 transformer encoder
 - Architecture: Decoder-only transformer
 - Temperature: 0.1 (factual, low creativity)
 - Free fallback: LocalQAChain (retrieval-only, no LLM cost)
@@ -261,11 +261,11 @@ docker run -p 8501:8501 financial-qa
 | **PDF Processing** | pdfplumber | 0.11.4 |
 | **Text Chunking** | LangChain | 0.2.16 |
 | **Embeddings (Free)** | sentence-transformers | 3.1.1 |
-| **Embeddings (Prod)** | OpenAI API | 1.45.0 |
+| **Embeddings** | all-MiniLM-L6-v2 | sentence-transformers 3.1.1 |
 | **Vector DB** | ChromaDB | 0.5.5 |
 | **Web UI** | Streamlit | 1.58.0 |
 | **REST API** | FastAPI | 0.115.0 |
-| **LLM** | GPT-4o-mini | via API |
+| **Response mode** | LocalQAChain | retrieval-only |
 | **Testing** | pytest | 9.0.3 |
 | **Reports** | LaTeX | pdflatex |
 | **Presentations** | python-pptx | 0.6.21 |
@@ -296,7 +296,7 @@ docker run -p 8501:8501 financial-qa
 
 - **Missing dependencies:** `pip install -r requirements.txt`
 - **Streamlit won't start:** `py -3.13 -X utf8 -m streamlit run app.py`
-- **No OpenAI key:** Leave `OPENAI_API_KEY` blank, set `USE_LOCAL_MODELS=true`
+- **No API key required:** embeddings and retrieval run locally
 - **PDF indexing slow:** Normal (first run ~1–2 min). Subsequent queries are instant.
 
 ---

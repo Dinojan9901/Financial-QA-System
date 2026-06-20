@@ -59,7 +59,7 @@ class TestFinancialTextChunker:
 
     def test_chunk_has_required_metadata_keys(self):
         chunker = FinancialTextChunker()
-        pages = [make_fake_page("Revenue grew 15% year-over-year to $10 billion.")]
+        pages = [make_fake_page("Revenue grew 15% year-over-year to approximately $10 billion.")]
         chunks = chunker.chunk_pages(pages)
         assert chunks, "Should produce at least one chunk"
         meta = chunks[0]["metadata"]
@@ -86,13 +86,13 @@ class TestFinancialTextChunker:
 class TestEmbeddingGenerator:
 
     @pytest.fixture(autouse=True)
-    def use_local_models(self, monkeypatch):
-        """Force local model for tests — no API key required."""
-        monkeypatch.setenv("USE_LOCAL_MODELS", "true")
+    def use_minilm_model(self, monkeypatch):
+        """Use the project's proposed MiniLM model."""
         import config
-        config.USE_LOCAL_MODELS = True
+        import ingestion.embedder as embedder_module
         config.EMBEDDING_MODEL = "all-MiniLM-L6-v2"
         config.EMBEDDING_DIMENSIONS = 384
+        monkeypatch.setattr(embedder_module, "EMBEDDING_MODEL", "all-MiniLM-L6-v2")
 
     def test_embed_text_returns_vector(self):
         embedder = EmbeddingGenerator()
@@ -130,9 +130,6 @@ class TestVectorStore:
 
     @pytest.fixture
     def temp_store(self, monkeypatch, tmp_path):
-        monkeypatch.setenv("USE_LOCAL_MODELS", "true")
-        import config
-        config.USE_LOCAL_MODELS = True
         store = VectorStore(persist_directory=str(tmp_path / "chroma"))
         return store
 

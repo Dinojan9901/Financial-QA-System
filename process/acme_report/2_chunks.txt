@@ -1,0 +1,35 @@
+=== STEP 2: CHUNKING ===
+Total chunks  : 2
+Avg tokens    : 148
+Min tokens    : 107
+Max tokens    : 188
+
+Each chunk is a piece of text that will be embedded and stored.
+Look here if answers feel incomplete — small or broken chunks
+mean the chunker couldn't find good split points (e.g. no blank lines).
+
+────────────────────────────────────────────────────────
+CHUNK 1  |  Page 1  |  Tokens: 188  |  ID: acme_report.pdf_p1_c0
+────────────────────────────────────────────────────────
+Quarterly Financial Performance Summary
+For the quarter ending March 31, 2026, Acme Financial Services reported total revenue of USD
+12.4 million, representing an increase of 8.7 percent compared with the previous quarter. Growth
+was primarily driven by higher subscription renewals and increased demand for advisory services.
+Operating expenses for the quarter were USD 8.1 million. Personnel costs accounted for the largest
+portion of expenses, followed by technology infrastructure investments and marketing activities.
+Management implemented several cost optimization initiatives that helped limit expense growth.
+Net income for the quarter was USD 2.9 million, resulting in a net profit margin of approximately 23
+percent. Cash and cash equivalents at quarter end totaled USD 15.6 million. The company
+maintained a strong liquidity position and reported no significant short-term funding concerns.
+Outstanding long-term debt was USD 4.2 million. Management expects revenue growth to continue
+
+────────────────────────────────────────────────────────
+CHUNK 2  |  Page 1  |  Tokens: 107  |  ID: acme_report.pdf_p1_c1
+────────────────────────────────────────────────────────
+maintained a strong liquidity position and reported no significant short-term funding concerns.
+Outstanding long-term debt was USD 4.2 million. Management expects revenue growth to continue
+through the remainder of the fiscal year and has reaffirmed its full-year guidance of revenue
+between USD 48 million and USD 52 million.
+This document is intentionally formatted as narrative text without tables and is suitable for testing
+retrieval-augmented generation (RAG), document parsing, chunking, and question-answering
+workflows.

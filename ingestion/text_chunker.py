@@ -13,7 +13,7 @@ try:
 except ImportError:
     from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-from config import CHUNK_SIZE, CHUNK_OVERLAP, LLM_MODEL
+from config import CHUNK_SIZE, CHUNK_OVERLAP, TOKENIZER_ENCODING
 
 
 class FinancialTextChunker:
@@ -23,13 +23,9 @@ class FinancialTextChunker:
         self,
         chunk_size: int = CHUNK_SIZE,
         chunk_overlap: int = CHUNK_OVERLAP,
-        model_name: str = LLM_MODEL,
+        tokenizer_encoding: str = TOKENIZER_ENCODING,
     ):
-        # tiktoken counts tokens the same way the target LLM does
-        try:
-            self.tokenizer = tiktoken.encoding_for_model(model_name)
-        except KeyError:
-            self.tokenizer = tiktoken.get_encoding("cl100k_base")
+        self.tokenizer = tiktoken.get_encoding(tokenizer_encoding)
 
         self.splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,

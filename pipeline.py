@@ -6,6 +6,7 @@ Two entry points:
   • answer_question(question)  — run on EVERY user query (retrieves + generates)
 """
 
+from pathlib import Path
 from typing import Dict, Optional
 
 from ingestion.pdf_loader import FinancialPDFLoader
@@ -19,7 +20,7 @@ from config import TOP_K_RESULTS
 
 # ── Phase 1: Indexing ─────────────────────────────────────────────────────────
 
-def ingest_document(pdf_path: str) -> Dict:
+def ingest_document(pdf_path: str, source_name: Optional[str] = None) -> Dict:
     """
     Full ingestion pipeline for one financial PDF.
 
@@ -40,6 +41,9 @@ def ingest_document(pdf_path: str) -> Dict:
     loader = FinancialPDFLoader(pdf_path)
     pages = loader.extract_text()
     doc_info = loader.get_document_info()
+    source = Path(source_name).name if source_name else doc_info["file_name"]
+    for page in pages:
+        page["source"] = source
     print(f"  Extracted {len(pages)} non-empty pages from {doc_info['total_pages']} total")
 
     if not pages:
@@ -68,7 +72,7 @@ def ingest_document(pdf_path: str) -> Dict:
 
     return {
         "status": "success",
-        "source": doc_info["file_name"],
+        "source": source,
         "pages": len(pages),
         "chunks": len(chunks),
         "avg_tokens_per_chunk": stats.get("avg_tokens", 0),

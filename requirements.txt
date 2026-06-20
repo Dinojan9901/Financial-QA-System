@@ -1,40 +1,35 @@
-# ── Core RAG pipeline ─────────────────────────────────────────────────────────
+# Text splitting and token counting
 langchain==0.2.16
-langchain-openai==0.1.23
-langchain-community==0.2.16
-openai==1.45.0
 tiktoken==0.7.0
 
-# ── PDF processing ────────────────────────────────────────────────────────────
+# PDF processing
 pypdf2==3.0.1
 pdfplumber==0.11.4
 
-# ── Vector database ───────────────────────────────────────────────────────────
+# Local vector database
 chromadb==0.5.5
-posthog<3.0                    # pin: chromadb 0.5.x telemetry is incompatible with posthog>=3.0
-faiss-cpu==1.8.0
+posthog<3.0
 
-# ── API server ────────────────────────────────────────────────────────────────
+# REST API
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
 python-multipart==0.0.9
 
-# ── Embeddings (free local model) ─────────────────────────────────────────────
+# Free local embeddings
 sentence-transformers==3.1.1
 
-# ── Utilities ─────────────────────────────────────────────────────────────────
+# HuggingFace Inference API — must stay <1.0 to satisfy transformers 4.57.6
+huggingface_hub>=0.34.0,<1.0
+
+# Utilities and evaluation
 python-dotenv==1.0.1
 numpy==1.26.4
 pandas==2.2.3
-httpx==0.27.2
+gensim==4.3.3
+scikit-learn==1.5.2
 
-# ── Evaluation & Baselines (NLP techniques) ───────────────────────────────────
-gensim==4.3.3                  # Word2Vec, GloVe-style embeddings
-scikit-learn==1.5.2            # TF-IDF, cosine similarity, metrics
-
-# ── Web UI (Demonstrable Output) ─────────────────────────────────────────────
+# Web UI
 streamlit>=1.35.0
 
-# ── Testing ───────────────────────────────────────────────────────────────────
+# Testing
 pytest==8.3.3
-pytest-asyncio==0.24.0

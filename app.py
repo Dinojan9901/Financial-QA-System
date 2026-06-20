@@ -13,10 +13,6 @@ import time
 import streamlit as st
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-os.environ.setdefault("USE_LOCAL_MODELS", "true")
-
-from dotenv import load_dotenv
-load_dotenv()
 
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -84,27 +80,15 @@ with st.sidebar:
 
     st.markdown("## ⚙️ Settings")
 
-    openai_key = st.text_input(
-        "OpenAI API Key (optional)",
-        type="password",
-        placeholder="sk-... (leave blank for free local mode)",
-        help="If provided, GPT-4o-mini generates grounded answers. "
-             "Without a key, the most relevant passage is returned directly.",
-    )
-    if openai_key:
-        os.environ["OPENAI_API_KEY"] = openai_key
-        os.environ["USE_LOCAL_MODELS"] = "false"
-    else:
-        os.environ["USE_LOCAL_MODELS"] = "true"
-
     n_chunks = st.slider("Chunks retrieved per question", min_value=1, max_value=8, value=3)
+    st.caption("Embeddings: all-MiniLM-L6-v2 (free and local)")
 
     st.markdown("---")
     st.markdown("### 🏛️ About")
     st.markdown(
         "**EC7203 Advanced AI**  \n"
         "AI-Powered Financial Document Q&A  \n"
-        "Using RAG · NLP · LLM · Prompt Engineering"
+        "Using semantic retrieval · NLP · sentence transformers"
     )
     st.markdown("---")
     st.markdown("### 🔧 Architecture")
@@ -112,7 +96,7 @@ with st.sidebar:
         "**Phase 1 — Indexing**  \n"
         "PDF → Extract → Chunk → Embed → Store  \n\n"
         "**Phase 2 — Querying**  \n"
-        "Question → Embed → Search → Generate"
+        "Question → Embed → Search → Return grounded excerpts"
     )
 
 
@@ -146,40 +130,49 @@ with tab1:
                  "or any financial PDF document.",
         )
 
-        if uploaded_file:
+        if uploaded_file is not None:
             st.success(f"✅ File received: **{uploaded_file.name}** "
                        f"({uploaded_file.size / 1024:.1f} KB)")
+        else:
+            st.caption("Select a PDF above to enable document indexing.")
 
-            if st.button("🚀 Index This Document", type="primary", width="stretch"):
-                with st.spinner("Indexing — extracting text, chunking, generating embeddings..."):
-                    try:
-                        from pipeline import ingest_document
+        index_clicked = st.button(
+            "🚀 Index This Document",
+            type="primary",
+            width="stretch",
+            disabled=uploaded_file is None,
+            help="Upload a PDF first, then click here to add it to the vector index.",
+        )
 
-                        # Write to a temp file so pdfplumber can open it by path
-                        with tempfile.NamedTemporaryFile(
-                            delete=False, suffix=".pdf",
-                            prefix=uploaded_file.name.replace(".pdf", "_"),
-                        ) as tmp:
-                            tmp.write(uploaded_file.getbuffer())
-                            tmp_path = tmp.name
+        if index_clicked and uploaded_file is not None:
+            with st.spinner("Indexing — extracting text, chunking, generating embeddings..."):
+                tmp_path = None
+                try:
+                    from pipeline import ingest_document
 
-                        t0 = time.perf_counter()
-                        result = ingest_document(tmp_path)
-                        elapsed = time.perf_counter() - t0
+                    # pdfplumber needs a filesystem path for the uploaded file.
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+                        tmp.write(uploaded_file.getbuffer())
+                        tmp_path = tmp.name
+
+                    t0 = time.perf_counter()
+                    result = ingest_document(tmp_path, source_name=uploaded_file.name)
+                    elapsed = time.perf_counter() - t0
+
+                    st.session_state["indexed_doc"] = uploaded_file.name
+                    st.session_state["index_result"] = result
+
+                    st.success(f"✅ Document indexed in {elapsed:.1f}s")
+                    st.json({
+                        "Pages extracted": result["pages"],
+                        "Chunks created": result["chunks"],
+                        "Avg tokens/chunk": result.get("avg_tokens_per_chunk", "—"),
+                    })
+                except Exception as e:
+                    st.error(f"Indexing failed: {e}")
+                finally:
+                    if tmp_path and os.path.exists(tmp_path):
                         os.unlink(tmp_path)
-
-                        st.session_state["indexed_doc"] = uploaded_file.name
-                        st.session_state["index_result"] = result
-
-                        st.success(f"✅ Document indexed in {elapsed:.1f}s")
-                        st.json({
-                            "Pages extracted": result["pages"],
-                            "Chunks created": result["chunks"],
-                            "Avg tokens/chunk": result.get("avg_tokens_per_chunk", "—"),
-                        })
-
-                    except Exception as e:
-                        st.error(f"Indexing failed: {e}")
 
         # Show currently indexed documents
         st.markdown("---")
@@ -444,8 +437,8 @@ PHASE 1 - INDEXING (run once per document)
 ----------------------------------------------------------
   PDF Upload
     --> Text Extraction  (pdfplumber + table support)
-         --> Text Chunking  (800 tokens, 150-token overlap)
-              --> Embedding  (MiniLM-L6-v2 or OpenAI)
+         --> Text Chunking  (200 tokens, 40-token overlap)
+              --> Embedding  (all-MiniLM-L6-v2)
                    --> ChromaDB Vector Store (cosine ANN)
 
 PHASE 2 - QUERYING (run on every user question)
@@ -453,8 +446,8 @@ PHASE 2 - QUERYING (run on every user question)
   User Question
     --> Query Embedding  (same model as documents)
          --> Cosine Search  (top-K relevant chunks)
-              --> LLM + Prompt Engineering
-                   --> Grounded Answer + Page Citations
+              --> Ranked Document Excerpts
+                   --> Grounded Response + Page Citations
 ```
 """)
 
@@ -473,14 +466,14 @@ PHASE 2 - QUERYING (run on every user question)
         """)
 
     with col2:
-        st.markdown("#### 2. LLM")
+        st.markdown("#### 2. Semantic Retrieval")
         st.markdown("""
-- GPT-4o-mini (OpenAI API)
-- Transformer decoder architecture
-- Temperature = 0.1 (factual)
-- Grounded generation from context
-- Source citation enforcement
-- Free fallback: retrieval-only mode
+- all-MiniLM-L6-v2 embeddings
+- Transformer encoder architecture
+- 384-dimensional dense vectors
+- Cosine similarity ranking
+- Grounded document excerpts
+- Fully local operation
         """)
 
     with col3:

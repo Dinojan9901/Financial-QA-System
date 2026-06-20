@@ -1,0 +1,24 @@
+=== STEP 3: EMBEDDINGS ===
+Model          : all-MiniLM-L6-v2
+Dimensions     : 384
+Chunks embedded: 2
+
+Each chunk now has a 384-number vector that represents its meaning.
+Only the first 8 values are shown here — the full vector lives in ChromaDB.
+If the first 8 values look like small decimals near zero, the model is working.
+
+────────────────────────────────────────────────────────
+CHUNK 1  |  Page 1  |  Tokens: 188
+────────────────────────────────────────────────────────
+Text preview : Quarterly Financial Performance Summary
+For the quarter ending March 31, 2026, Acme Financial Services reported total re ...
+Emb [0..7]   : [-0.01942, -0.01053, -0.03049, 0.04599, -0.01475, -0.0429, 0.00726, 0.07949]
+Vector norm  : 1.0
+
+────────────────────────────────────────────────────────
+CHUNK 2  |  Page 1  |  Tokens: 107
+────────────────────────────────────────────────────────
+Text preview : maintained a strong liquidity position and reported no significant short-term funding concerns.
+Outstanding long-term de ...
+Emb [0..7]   : [0.06696, 0.03732, 0.03106, 0.06367, -0.03258, -0.05079, -0.03488, 0.046]
+Vector norm  : 1.0

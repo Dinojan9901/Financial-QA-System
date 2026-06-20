@@ -53,7 +53,7 @@
 
 > "The course required a minimum of three AI techniques. We applied:
 > One: NLP — including text preprocessing, Word2Vec, TF-IDF, and Sentence-Transformers.
-> Two: Large Language Models — GPT-4o-mini accessed via the OpenAI API.
+> Two: Transformer embeddings — all-MiniLM-L6-v2 running locally.
 > Three: Prompt Engineering — using systematic prompt design, chain-of-thought reasoning,
 > and few-shot in-context learning."
 
@@ -61,7 +61,7 @@
 
 > "The system runs in two phases.
 > Phase one — indexing — runs once per document: we extract text with pdfplumber, chunk
-> it into 800-token blocks, embed each chunk with MiniLM-L6-v2, and store them in ChromaDB.
+> it into 200-token blocks, embed each chunk with MiniLM-L6-v2, and store them in ChromaDB.
 > Phase two — querying — runs on every user question: we embed the question, find the
 > top-K similar chunks via cosine search, and pass them to the LLM with our engineered prompt."
 

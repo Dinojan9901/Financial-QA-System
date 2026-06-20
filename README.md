@@ -1,5 +1,9 @@
 # AI-Powered Financial Document Q&A System
 
+> New to the repository? Start with the
+> [project documentation index](Project_Documents/README.md) and
+> [folder structure guide](Project_Documents/FOLDER_STRUCTURE.md).
+
 **EC7203 Advanced Artificial Intelligence — Final Group Project**
 
 A production-grade **RAG (Retrieval-Augmented Generation)** system that lets users upload financial PDFs (10-K reports, earnings calls, SEC filings) and ask natural language questions in plain English — returning **grounded answers with page citations** and **zero hallucinations**.
@@ -23,7 +27,7 @@ Opens at **http://localhost:8501** — upload a PDF, ask questions, view evaluat
 
 ✅ **Three AI Techniques** (Course Requirement)
 - **NLP:** Text preprocessing, Word2Vec/TF-IDF baselines, Sentence-Transformers embeddings
-- **LLM:** GPT-4o-mini for grounded answer generation (with free local fallback)
+- **Transformer embeddings:** all-MiniLM-L6-v2 for semantic retrieval
 - **Prompt Engineering:** Systematic 7-rule system prompt, chain-of-thought, few-shot learning
 
 ✅ **Demonstrated Results**
@@ -32,7 +36,7 @@ Opens at **http://localhost:8501** — upload a PDF, ask questions, view evaluat
 - Keyword Hit Rate = 1.000 (100% financial metric extraction)
 
 ✅ **Three Deliverables** (All Included)
-1. **Final Report** — `report/main.pdf` (19 pages, LaTeX, fully formatted)
+1. **Final Report** — `Project_Documents/report/main.pdf`
 2. **Demonstrable Output** — `app.py` (Streamlit web UI) + `demo.py` (terminal demo)
 3. **Python Code & Notebooks** — 28 source files + Jupyter notebook + evaluation modules
 
@@ -48,7 +52,7 @@ PDF Upload
   ↓ [pdfplumber]
 Extract Text & Tables
   ↓ [RecursiveCharacterTextSplitter]
-Chunk (800 tokens, 150-token overlap)
+Chunk (200 tokens, 40-token overlap)
   ↓ [all-MiniLM-L6-v2]
 Generate Embeddings
   ↓ [ChromaDB]
@@ -64,8 +68,8 @@ Embed Question
 Cosine Similarity Search
   ↓
 Retrieve Top-K Chunks
-  ↓ [GPT-4o-mini + Prompt]
-Generate Grounded Answer with Citations
+  ↓ [LocalQAChain]
+Return Grounded Excerpt with Citations
 ```
 
 ---
@@ -87,11 +91,10 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Configure API Keys (Optional)
+### 3. Configure Local Paths (Optional)
 ```bash
 cp .env.example .env
-# Edit .env and add OPENAI_API_KEY for GPT-4o-mini answers
-# Leave empty for free local mode (retrieval-only, no generation cost)
+# Edit .env only when custom storage paths or ports are needed
 ```
 
 ---
@@ -189,8 +192,8 @@ financial-qa-system/
 │
 ├── ingestion/            # Phase 1: PDF → Chunks → Embeddings
 │   ├── pdf_loader.py     # pdfplumber text & table extraction
-│   ├── text_chunker.py   # 800-token chunking with 150-token overlap
-│   └── embedder.py       # MiniLM-L6-v2 or OpenAI embeddings
+│   ├── text_chunker.py   # 200-token chunking with 40-token overlap
+│   └── embedder.py       # all-MiniLM-L6-v2 local embeddings
 │
 ├── retrieval/            # Similarity Search
 │   ├── vector_store.py   # ChromaDB interface (CRUD + cosine search)
@@ -198,7 +201,7 @@ financial-qa-system/
 │
 ├── generation/           # Phase 2: Question → Answer
 │   ├── prompt_builder.py # System prompt (7 critical rules), few-shot examples
-│   └── qa_chain.py       # GPT-4o-mini integration + LocalQAChain fallback
+│   └── qa_chain.py       # Retrieval-only grounded response formatter
 │
 ├── api/                  # REST API (FastAPI)
 │   ├── routes.py         # Endpoints: /ingest, /ask, /documents, /health
@@ -266,8 +269,8 @@ financial-qa-system/
 |---|---|---|
 | **NLP: Text Preprocessing** | `ingestion/pdf_loader.py` | Ligature fixing, page number removal, table extraction via pdfplumber |
 | **NLP: Word Embeddings** | `ingestion/embedder.py` | Word2Vec (skip-gram, d=100) baseline + TF-IDF (sparse) baseline + SentenceTransformer (proposed) |
-| **NLP: Text Chunking** | `ingestion/text_chunker.py` | RecursiveCharacterTextSplitter, 800 tokens, 150-token overlap |
-| **LLM: Transformer Decoder** | `generation/qa_chain.py` | GPT-4o-mini (OpenAI API) + LocalQAChain fallback (free) |
+| **NLP: Text Chunking** | `ingestion/text_chunker.py` | RecursiveCharacterTextSplitter, 200 tokens, 40-token overlap |
+| **Transformer Encoder** | `ingestion/embedder.py` | all-MiniLM-L6-v2 semantic embeddings |
 | **Prompt Engineering** | `generation/prompt_builder.py` | 7-rule system prompt, chain-of-thought, 2-shot in-context examples |
 | **Vector Similarity Search** | `retrieval/vector_store.py` | ChromaDB with cosine ANN, top-K retrieval |
 
@@ -299,23 +302,15 @@ docker run -p 8501:8501 --env-file .env financial-qa streamlit run app.py
 ### Railway (Cloud)
 1. Push repo to GitHub
 2. Connect on railway.app
-3. Set `OPENAI_API_KEY` environment variable
-4. Railway auto-detects Python and deploys
+3. Railway auto-detects Python and deploys
 
 ---
 
-## Free Mode (No API Key)
+## Free Local Mode
 
-The system works completely free using local sentence-transformer embeddings:
-```bash
-# .env
-USE_LOCAL_MODELS=true
-# Leave OPENAI_API_KEY blank
-```
+The system always uses free local `all-MiniLM-L6-v2` embeddings. No API key is required.
 
-**Behavior:** Retrieves relevant chunks and returns them directly (no LLM generation). Perfect for demo purposes.
-
-**With API key:** Uses GPT-4o-mini to synthesise grounded answers from retrieved chunks.
+**Behavior:** Retrieves relevant chunks and returns the strongest grounded excerpt with page citations.
 
 ---
 
@@ -325,9 +320,6 @@ USE_LOCAL_MODELS=true
 ```bash
 pip install -r requirements.txt
 ```
-
-**Q: "OPENAI_API_KEY not set"**
-- Either set in `.env` file or leave blank to use free local mode
 
 **Q: Streamlit app won't start**
 ```bash

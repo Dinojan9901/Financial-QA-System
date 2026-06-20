@@ -1,0 +1,60 @@
+=== STEP 5: RETRIEVAL ===
+Question      : What were the operating expenses?
+Top-K setting : 5
+Results found : 4
+
+These are the chunks the system thinks best answer your question.
+Score is cosine similarity (0 = no match, 1 = identical meaning).
+Above 0.5 is a strong match. Below 0.3 means the answer may not be in the document.
+
+────────────────────────────────────────────────────────
+RESULT 1  |  Score: 0.4268  |  Page 1  |  Source: sample_financial_document_rag.pdf
+────────────────────────────────────────────────────────
+Quarterly Financial Performance Summary
+For the quarter ending March 31, 2026, Acme Financial Services reported total revenue of USD
+12.4 million, representing an increase of 8.7 percent compared with the previous quarter. Growth
+was primarily driven by higher subscription renewals and increased demand for advisory services.
+Operating expenses for the quarter were USD 8.1 million. Personnel costs accounted for the largest
+portion of expenses, followed by technology infrastructure investments and marketing activities.
+Management implemented several cost optimization initiatives that helped limit expense growth.
+Net income for the quarter was USD 2.9 million, resulting in a net profit margin of approximately 23
+percent. Cash and cash equivalents at quarter end totaled USD 15.6 million. The company
+maintained a strong liquidity position and reported no significant short-term funding concerns.
+Outstanding long-term debt was USD 4.2 million. Management expects revenue growth to continue
+
+────────────────────────────────────────────────────────
+RESULT 2  |  Score: 0.4268  |  Page 1  |  Source: acme_report.pdf
+────────────────────────────────────────────────────────
+Quarterly Financial Performance Summary
+For the quarter ending March 31, 2026, Acme Financial Services reported total revenue of USD
+12.4 million, representing an increase of 8.7 percent compared with the previous quarter. Growth
+was primarily driven by higher subscription renewals and increased demand for advisory services.
+Operating expenses for the quarter were USD 8.1 million. Personnel costs accounted for the largest
+portion of expenses, followed by technology infrastructure investments and marketing activities.
+Management implemented several cost optimization initiatives that helped limit expense growth.
+Net income for the quarter was USD 2.9 million, resulting in a net profit margin of approximately 23
+percent. Cash and cash equivalents at quarter end totaled USD 15.6 million. The company
+maintained a strong liquidity position and reported no significant short-term funding concerns.
+Outstanding long-term debt was USD 4.2 million. Management expects revenue growth to continue
+
+────────────────────────────────────────────────────────
+RESULT 3  |  Score: 0.3554  |  Page 1  |  Source: sample_financial_document_rag.pdf
+────────────────────────────────────────────────────────
+maintained a strong liquidity position and reported no significant short-term funding concerns.
+Outstanding long-term debt was USD 4.2 million. Management expects revenue growth to continue
+through the remainder of the fiscal year and has reaffirmed its full-year guidance of revenue
+between USD 48 million and USD 52 million.
+This document is intentionally formatted as narrative text without tables and is suitable for testing
+retrieval-augmented generation (RAG), document parsing, chunking, and question-answering
+workflows.
+
+────────────────────────────────────────────────────────
+RESULT 4  |  Score: 0.3554  |  Page 1  |  Source: acme_report.pdf
+────────────────────────────────────────────────────────
+maintained a strong liquidity position and reported no significant short-term funding concerns.
+Outstanding long-term debt was USD 4.2 million. Management expects revenue growth to continue
+through the remainder of the fiscal year and has reaffirmed its full-year guidance of revenue
+between USD 48 million and USD 52 million.
+This document is intentionally formatted as narrative text without tables and is suitable for testing
+retrieval-augmented generation (RAG), document parsing, chunking, and question-answering
+workflows.

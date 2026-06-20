@@ -52,6 +52,8 @@ Thumbs.db
 *.bak
 *.log
 *.out
+*.aux
+*.toc
 
 # Data & temporary storage
 data/uploads/
@@ -60,14 +62,20 @@ data/chroma_db/
 *.sqlite
 *.sqlite3
 
+# Pipeline inspection output (generated locally, not needed on GitHub)
+process/
+
+# Evaluation results (generated JSON files)
+evaluation/results/
+
 # Streamlit
 .streamlit/
 .streamlit/config.toml
 
 # PDFs (except the final report)
 *.pdf
-!report/main.pdf
-!presentation/Financial_QA_Presentation.pdf
+!Project_Documents/report/main.pdf
+!Project_Documents/presentation/Financial_QA_Presentation.pdf
 
 # Large model weights (download on demand)
 *.bin

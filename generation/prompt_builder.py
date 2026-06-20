@@ -57,7 +57,7 @@ def build_qa_prompt(question: str, context_chunks: List[Dict]) -> List[Dict]:
         context_chunks: Retrieved chunks from the vector store.
 
     Returns:
-        List of OpenAI-format message dicts (system / few-shot / user).
+        List of chat-style message dictionaries (system / few-shot / user).
     """
     context_parts = []
     for i, chunk in enumerate(context_chunks, 1):

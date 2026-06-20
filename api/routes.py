@@ -14,8 +14,6 @@ import shutil
 import tempfile
 
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from fastapi.responses import JSONResponse
-
 from api.schemas import (
     IngestResponse,
     QuestionRequest,
@@ -39,7 +37,7 @@ async def ingest_pdf(file: UploadFile = File(..., description="Financial PDF doc
     Upload a financial PDF (10-K, earnings call, SEC filing).
     The document is extracted, chunked, embedded, and stored for Q&A.
     """
-    if not file.filename.lower().endswith(".pdf"):
+    if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are accepted.")
 
     # Save to a temp file so pdfplumber can open it by path
@@ -48,9 +46,7 @@ async def ingest_pdf(file: UploadFile = File(..., description="Financial PDF doc
         tmp_path = tmp.name
 
     try:
-        result = ingest_document(tmp_path)
-        # Rename the source to the original filename in the result
-        result["source"] = file.filename
+        result = ingest_document(tmp_path, source_name=file.filename)
         return IngestResponse(
             status=result["status"],
             source=file.filename,

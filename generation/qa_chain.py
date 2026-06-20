@@ -1,76 +1,84 @@
+"""Format retrieved document passages as grounded answers.
+
+Uses HuggingFace Inference API when HF_TOKEN is set in .env.
+Falls back to extractive sentence matching when it is not.
 """
-QA Chain — end-to-end: retrieved chunks → grounded LLM answer.
 
-Uses GPT-4o-mini (cheap, fast, great for extraction tasks).
-Temperature=0.1 keeps answers factual, not creative.
-"""
+import re
+from typing import Dict, List, Optional
 
-import os
-from typing import List, Dict
+import numpy as np
+from sentence_transformers import SentenceTransformer
 
-from generation.prompt_builder import build_qa_prompt
-from config import LLM_MODEL, LLM_TEMPERATURE, LLM_MAX_TOKENS, OPENAI_API_KEY
+from config import EMBEDDING_MODEL, HF_TOKEN, HF_MODEL
+
+# Module-level singleton — loaded once per process, reused across calls.
+_model: Optional[SentenceTransformer] = None
 
 
-class FinancialQAChain:
-    """
-    Takes a question + retrieved context chunks and returns a grounded answer
-    from the LLM, plus source citations and token usage stats.
-    """
+def _get_model() -> SentenceTransformer:
+    global _model
+    if _model is None:
+        _model = SentenceTransformer(EMBEDDING_MODEL)
+    return _model
 
-    def __init__(self, model: str = LLM_MODEL):
-        from openai import OpenAI
-        if not OPENAI_API_KEY:
-            raise EnvironmentError(
-                "OPENAI_API_KEY is required for answer generation. "
-                "Set it in .env or use the local-model demo mode."
-            )
-        self.client = OpenAI(api_key=OPENAI_API_KEY)
-        self.model = model
 
-    def answer(
-        self,
-        question: str,
-        context_chunks: List[Dict],
-        temperature: float = LLM_TEMPERATURE,
-    ) -> Dict:
-        """
-        Generate an answer grounded in context_chunks.
+def _cosine_similarity(a: List[float], b: List[float]) -> float:
+    a_arr, b_arr = np.array(a), np.array(b)
+    denom = np.linalg.norm(a_arr) * np.linalg.norm(b_arr)
+    return float(np.dot(a_arr, b_arr) / denom) if denom else 0.0
 
-        Returns:
-            {answer, question, model, sources, tokens_used}
-        """
-        messages = build_qa_prompt(question, context_chunks)
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=messages,
-            temperature=temperature,
-            max_tokens=LLM_MAX_TOKENS,
-        )
-        answer_text = response.choices[0].message.content
-        sources = [
-            {
-                "page": c["metadata"].get("page_number"),
-                "source": c["metadata"].get("source"),
-                "relevance": round(c.get("similarity_score", 0), 3),
-            }
-            for c in context_chunks
-        ]
-        return {
-            "answer": answer_text,
-            "question": question,
-            "model": self.model,
-            "sources": sources,
-            "tokens_used": response.usage.total_tokens,
-            "chunks_retrieved": len(context_chunks),
-        }
+
+def _split_sentences(text: str) -> List[str]:
+    parts = re.split(r'(?<=[.!?])\s+', text.strip())
+    return [p.strip() for p in parts if len(p.strip()) > 20]
+
+
+def _extractive_answer(question: str, context_chunks: List[Dict]):
+    """Return (best_sentence, score, metadata) using sentence-level similarity."""
+    model = _get_model()
+    q_vec = model.encode(question).tolist()
+
+    best_sentence = ""
+    best_score = -1.0
+    best_meta = context_chunks[0]["metadata"]
+
+    for chunk in context_chunks:
+        sentences = _split_sentences(chunk["text"])
+        if not sentences:
+            continue
+        s_vecs = model.encode(sentences).tolist()
+        for sentence, s_vec in zip(sentences, s_vecs):
+            score = _cosine_similarity(q_vec, s_vec)
+            if score > best_score:
+                best_score = score
+                best_sentence = sentence
+                best_meta = chunk["metadata"]
+
+    return best_sentence, best_score, best_meta
+
+
+def _hf_llm_answer(question: str, context_chunks: List[Dict]) -> str:
+    """Call HuggingFace Inference API and return the generated answer."""
+    from huggingface_hub import InferenceClient
+    from generation.prompt_builder import build_qa_prompt
+
+    client   = InferenceClient(model=HF_MODEL, token=HF_TOKEN)
+    messages = build_qa_prompt(question=question, context_chunks=context_chunks)
+
+    response = client.chat_completion(
+        messages=messages,
+        max_tokens=512,
+        temperature=0.1,
+    )
+    return response.choices[0].message.content.strip()
 
 
 class LocalQAChain:
     """
-    Fallback QA chain that works without an OpenAI key.
-    Returns the most relevant chunk text as the "answer" — useful for testing
-    the retrieval pipeline without incurring API costs.
+    Answer questions from retrieved chunks.
+    - If HF_TOKEN is set in .env  → calls HuggingFace LLM for a synthesised answer.
+    - If HF_TOKEN is missing       → falls back to extractive sentence matching.
     """
 
     def answer(self, question: str, context_chunks: List[Dict], **kwargs) -> Dict:
@@ -78,39 +86,52 @@ class LocalQAChain:
             return {
                 "answer": "No relevant context found in the document.",
                 "question": question,
-                "model": "local-retrieval-only",
+                "model": "none",
                 "sources": [],
                 "tokens_used": 0,
                 "chunks_retrieved": 0,
             }
-        top_chunk = context_chunks[0]
-        answer = (
-            f"[Local mode — no LLM generation]\n\n"
-            f"Most relevant excerpt (Page {top_chunk['metadata'].get('page_number')}, "
-            f"relevance={top_chunk.get('similarity_score', 0):.2f}):\n\n"
-            f"{top_chunk['text']}"
+
+        sources = [
+            {
+                "page": chunk["metadata"].get("page_number"),
+                "source": chunk["metadata"].get("source"),
+                "relevance": round(chunk.get("similarity_score", 0), 3),
+            }
+            for chunk in context_chunks
+        ]
+
+        # ── Path 1: HuggingFace LLM ───────────────────────────────────────────
+        if HF_TOKEN:
+            try:
+                answer_text = _hf_llm_answer(question, context_chunks)
+                return {
+                    "answer": answer_text,
+                    "question": question,
+                    "model": HF_MODEL,
+                    "sources": sources,
+                    "tokens_used": 0,
+                    "chunks_retrieved": len(context_chunks),
+                }
+            except Exception as e:
+                print(f"[qa_chain] HF API failed ({e}) — falling back to extractive.")
+
+        # ── Path 2: Extractive fallback ───────────────────────────────────────
+        best_sentence, best_score, best_meta = _extractive_answer(question, context_chunks)
+        page = best_meta.get("page_number", "?")
+        answer_text = (
+            f"Answer (Page {page}, relevance={best_score:.2f}):\n\n"
+            f"{best_sentence}"
         )
         return {
-            "answer": answer,
+            "answer": answer_text,
             "question": question,
-            "model": "local-retrieval-only",
-            "sources": [
-                {
-                    "page": c["metadata"].get("page_number"),
-                    "source": c["metadata"].get("source"),
-                    "relevance": round(c.get("similarity_score", 0), 3),
-                }
-                for c in context_chunks
-            ],
+            "model": "all-MiniLM-L6-v2-extractive",
+            "sources": sources,
             "tokens_used": 0,
             "chunks_retrieved": len(context_chunks),
         }
 
 
-def get_qa_chain():
-    """Factory: returns the right chain based on config."""
-    from config import USE_LOCAL_MODELS
-    if USE_LOCAL_MODELS or not OPENAI_API_KEY:
-        print("[qa_chain] Using LocalQAChain (no OpenAI key / local mode)")
-        return LocalQAChain()
-    return FinancialQAChain()
+def get_qa_chain() -> LocalQAChain:
+    return LocalQAChain()
