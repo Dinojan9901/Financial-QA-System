@@ -8,10 +8,11 @@ Generation runs through any OpenAI-compatible provider:
 Temperature=0.1 keeps answers factual, not creative.
 """
 
+import re
 from typing import List, Dict
 
 from generation.prompt_builder import build_qa_prompt
-from config import resolve_llm_provider, LLM_TEMPERATURE, LLM_MAX_TOKENS
+from config import resolve_llm_provider, LLM_TEMPERATURE, LLM_MAX_TOKENS, EMBEDDING_MODEL
 
 
 class FinancialQAChain:
@@ -70,11 +71,55 @@ class FinancialQAChain:
         }
 
 
+# ── Extractive fallback helpers (used when no LLM key is configured) ──────────
+
+_extractive_model = None  # SentenceTransformer singleton, loaded once per process
+
+
+def _get_extractive_model():
+    global _extractive_model
+    if _extractive_model is None:
+        from sentence_transformers import SentenceTransformer
+        _extractive_model = SentenceTransformer(EMBEDDING_MODEL)
+    return _extractive_model
+
+
+def _split_sentences(text: str) -> List[str]:
+    """Split a chunk into sentences, keeping only substantial ones."""
+    parts = re.split(r"(?<=[.!?])\s+", text.strip())
+    return [p.strip() for p in parts if len(p.strip()) > 20]
+
+
+def _best_sentence(question: str, context_chunks: List[Dict]):
+    """Return (sentence, score, metadata) for the chunk sentence most similar
+    to the question, using cosine similarity on MiniLM embeddings."""
+    import numpy as np
+
+    model = _get_extractive_model()
+    q_vec = np.asarray(model.encode(question))
+    best = ("", -1.0, context_chunks[0]["metadata"])
+
+    for chunk in context_chunks:
+        sentences = _split_sentences(chunk["text"])
+        if not sentences:
+            continue
+        s_vecs = model.encode(sentences)
+        for sentence, s_vec in zip(sentences, s_vecs):
+            s_vec = np.asarray(s_vec)
+            denom = np.linalg.norm(q_vec) * np.linalg.norm(s_vec)
+            score = float(np.dot(q_vec, s_vec) / denom) if denom else 0.0
+            if score > best[1]:
+                best = (sentence, score, chunk["metadata"])
+    return best
+
+
 class LocalQAChain:
     """
-    Fallback QA chain that works without an OpenAI key.
-    Returns the most relevant chunk text as the "answer" — useful for testing
-    the retrieval pipeline without incurring API costs.
+    Free fallback used when no LLM key is configured.
+
+    Instead of dumping a whole chunk, it returns the single most relevant
+    *sentence* from the retrieved context (extractive answering via MiniLM
+    sentence similarity) — concise and still fully grounded with a citation.
     """
 
     def answer(self, question: str, context_chunks: List[Dict], **kwargs) -> Dict:
@@ -82,22 +127,23 @@ class LocalQAChain:
             return {
                 "answer": "No relevant context found in the document.",
                 "question": question,
-                "model": "local-retrieval-only",
+                "model": "local-extractive",
                 "sources": [],
                 "tokens_used": 0,
                 "chunks_retrieved": 0,
             }
-        top_chunk = context_chunks[0]
+
+        sentence, score, meta = _best_sentence(question, context_chunks)
+        page = meta.get("page_number", "?")
         answer = (
-            f"[Local mode — no LLM generation]\n\n"
-            f"Most relevant excerpt (Page {top_chunk['metadata'].get('page_number')}, "
-            f"relevance={top_chunk.get('similarity_score', 0):.2f}):\n\n"
-            f"{top_chunk['text']}"
+            f"{sentence}\n\n"
+            f"_(Extractive answer — Page {page}, relevance {score:.2f}. "
+            f"Add a free GROQ_API_KEY for a full generated answer.)_"
         )
         return {
             "answer": answer,
             "question": question,
-            "model": "local-retrieval-only",
+            "model": "local-extractive (MiniLM)",
             "sources": [
                 {
                     "page": c["metadata"].get("page_number"),
