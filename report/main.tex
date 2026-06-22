@@ -97,15 +97,15 @@
 % ── Title Page ────────────────────────────────────────────────────────────────
 \begin{titlepage}
   \centering
-  \vspace*{2.5cm}
+  \vspace*{1.3cm}
 
   {\LARGE\bfseries AI-Powered Financial Document\\[0.5em]
   Question \& Answer System\par}
 
-  \vspace{1cm}
+  \vspace{0.7cm}
   {\large Using Retrieval-Augmented Generation (RAG)\par}
 
-  \vspace{1.8cm}
+  \vspace{1cm}
   \rule{0.75\textwidth}{0.5pt}\\[1em]
 
   {\large\bfseries EC7203 Advanced Artificial Intelligence\\[0.3em]
@@ -113,19 +113,29 @@
 
   \rule{0.75\textwidth}{0.5pt}
 
-  \vspace{1.8cm}
+  \vspace{0.9cm}
   \begin{tabular}{@{}ll@{}}
-    \textbf{Course:}     & EC7203 Advanced Artificial Intelligence \\[0.6em]
-    \textbf{Domain:}     & Banking \& Finance \\[0.6em]
-    \textbf{Techniques:} & NLP, LLM, Prompt Engineering, Word Embeddings \\[0.6em]
+    \textbf{Course:}     & EC7203 Advanced Artificial Intelligence \\[0.45em]
+    \textbf{Domain:}     & Banking \& Finance \\[0.45em]
+    \textbf{Techniques:} & NLP, LLM, Prompt Engineering, Word Embeddings \\[0.45em]
     \textbf{Date:}       & June 2026 \\
   \end{tabular}
 
-  \vspace{1.2em}
+  \vspace{0.9em}
+  {\large\bfseries Group Members\par}
+  \vspace{0.4em}
+  \begin{tabular}{@{}ll@{}}
+    EG/2021/4487 & Dinojan V. \\[0.25em]
+    EG/2021/4566 & Jackshan Venujan G.S. \\[0.25em]
+    EG/2021/4825 & Tharshihan R. \\[0.25em]
+    EG/2021/4805 & Senevirathna P.U.S. \\
+  \end{tabular}
+
+  \vspace{0.9em}
   {\small\textbf{Live Demo:}\\[0.3em]
   \url{https://financial-app-system-bcffpkdt88dxp8krfjg7pd.streamlit.app/}\par}
 
-  \vfill
+  \vspace{0.9cm}
   {\small Submitted in partial fulfilment of the requirements for EC7203\par}
 \end{titlepage}
 
@@ -138,11 +148,11 @@
 \section{Executive Summary}
 % ─────────────────────────────────────────────────────────────────────────────
 
-This report presents the design, implementation, and evaluation of an AI-powered Financial Document Question and Answer (Q\&A) System. The system enables users to upload financial documents---such as 10-K annual reports, earnings call transcripts, and SEC filings---and query them using natural language, returning grounded, cited answers derived exclusively from the uploaded document content.
+This report presents the design, implementation, and evaluation of an AI-powered Financial Document Question and Answer (Q\&A) System. The system enables users to upload financial documents, such as 10-K annual reports, earnings call transcripts, and SEC filings, and query them using natural language, returning grounded, cited answers derived exclusively from the uploaded document content.
 
-The core architecture is a \textbf{Retrieval-Augmented Generation (RAG)} pipeline combining three Advanced AI techniques: (1)~\textbf{Natural Language Processing}---text preprocessing, Word2Vec/TF-IDF baselines, and sentence-transformer embeddings; (2)~\textbf{Large Language Models}---a transformer LLM (Groq Llama~3.3 70B, free, or GPT-4o-mini) for grounded answer generation; and (3)~\textbf{Prompt Engineering}---systematic system prompt design, chain-of-thought reasoning, and few-shot in-context learning.
+The core architecture is a \textbf{Retrieval-Augmented Generation (RAG)} pipeline combining three Advanced AI techniques: (1)~\textbf{Natural Language Processing}, text preprocessing, Word2Vec/TF-IDF baselines, and sentence-transformer embeddings; (2)~\textbf{Large Language Models}, a transformer LLM (Groq Llama~3.3 70B, free, or GPT-4o-mini) for grounded answer generation; and (3)~\textbf{Prompt Engineering}, systematic system prompt design, chain-of-thought reasoning, and few-shot in-context learning.
 
-Experimental evaluation on \textbf{50 real question--answer pairs} from the public \texttt{financial-qa-10K} dataset (derived from genuine SEC 10-K filings) showed that MiniLM-L6-v2 sentence-transformer embeddings retrieved the correct source passage \textbf{first for every query} (\textbf{$\text{Hit}_1$ = 1.000}, \textbf{MRR = 1.000}), outperforming Word2Vec ($\text{Hit}_1$ = 0.640) and a strong TF-IDF baseline ($\text{Hit}_1$ = 0.940). The RAG pipeline recovered \textbf{84\% of gold-answer keywords} (KHR = 0.840), versus under $1\%$ for the ungrounded No-RAG baseline---empirically confirming that grounding is essential for accurate financial answers. The system is delivered as a deployable REST API (FastAPI) and interactive web app verified to run end-to-end on financial PDF inputs.
+Experimental evaluation on \textbf{50 real question--answer pairs} from the public \texttt{financial-qa-10K} dataset (derived from genuine SEC 10-K filings) showed that MiniLM-L6-v2 sentence-transformer embeddings retrieved the correct source passage \textbf{first for every query} (\textbf{$\text{Hit}_1$ = 1.000}, \textbf{MRR = 1.000}), outperforming Word2Vec ($\text{Hit}_1$ = 0.640) and a strong TF-IDF baseline ($\text{Hit}_1$ = 0.940). The RAG pipeline recovered \textbf{84\% of gold-answer keywords} (KHR = 0.840), versus under $1\%$ for the ungrounded No-RAG baseline, empirically confirming that grounding is essential for accurate financial answers. The system is delivered as a deployable REST API (FastAPI) and interactive web app verified to run end-to-end on financial PDF inputs.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Problem Statement \& Motivation}
@@ -156,7 +166,7 @@ Existing approaches have two key limitations:
 
 \begin{enumerate}[leftmargin=*]
   \item \textbf{Keyword Search}: Fast but brittle. Requires knowing exact terms; misses paraphrased content and cannot synthesise multi-part answers.
-  \item \textbf{Raw LLM Query}: Sending the question directly to a large language model without document context. The LLM cannot access document-specific figures and frequently \textit{hallucinates}---generating plausible but factually incorrect answers.
+  \item \textbf{Raw LLM Query}: Sending the question directly to a large language model without document context. The LLM cannot access document-specific figures and frequently \textit{hallucinates}, generating plausible but factually incorrect answers.
 \end{enumerate}
 
 \subsection{Proposed Solution}
@@ -173,7 +183,7 @@ The Banking \& Finance domain is listed as a suggested industry domain in the pr
 
 \subsection{Word Embeddings and NLP Foundations}
 
-Mikolov et al.\ (2013) introduced Word2Vec, a neural approach learning dense word vectors from large corpora using skip-gram and CBOW architectures. Word2Vec demonstrated that semantic relationships can be encoded geometrically (e.g., ``king'' $-$ ``man'' $+$ ``woman'' $\approx$ ``queen''). Pennington et al.\ (2014) extended this with GloVe (Global Vectors), combining count-based and prediction-based approaches. Both produce \textit{context-independent} embeddings---a word has the same vector regardless of surrounding words---which limits their performance on financial text where words like ``note'' or ``reserve'' carry domain-specific meanings.
+Mikolov et al.\ (2013) introduced Word2Vec, a neural approach learning dense word vectors from large corpora using skip-gram and CBOW architectures. Word2Vec demonstrated that semantic relationships can be encoded geometrically (e.g., ``king'' $-$ ``man'' $+$ ``woman'' $\approx$ ``queen''). Pennington et al.\ (2014) extended this with GloVe (Global Vectors), combining count-based and prediction-based approaches. Both produce \textit{context-independent} embeddings, a word has the same vector regardless of surrounding words, which limits their performance on financial text where words like ``note'' or ``reserve'' carry domain-specific meanings.
 
 \subsection{Transformer-Based Language Models}
 
@@ -181,7 +191,7 @@ Vaswani et al.\ (2017) introduced the Transformer architecture with self-attenti
 
 \subsection{Sentence Embeddings}
 
-Reimers and Gurevych (2019) introduced Sentence-BERT (SBERT), fine-tuning BERT to produce semantically meaningful sentence-level embeddings via siamese network training. SBERT dramatically improved semantic textual similarity tasks and enabled efficient large-scale similarity search---a key requirement for the retrieval component of our system.
+Reimers and Gurevych (2019) introduced Sentence-BERT (SBERT), fine-tuning BERT to produce semantically meaningful sentence-level embeddings via siamese network training. SBERT dramatically improved semantic textual similarity tasks and enabled efficient large-scale similarity search, a key requirement for the retrieval component of our system.
 
 \subsection{Retrieval-Augmented Generation}
 
@@ -189,7 +199,7 @@ Lewis et al.\ (2020) formally proposed the RAG architecture, demonstrating that 
 
 \subsection{Financial NLP and Prompt Engineering}
 
-Yang et al.\ (2020) introduced FinBERT, a BERT model fine-tuned on financial communications. Huang et al.\ (2022) demonstrated RAG-based approaches for earnings call Q\&A, finding grounded systems outperform ungrounded LLMs on factual recall. Wei et al.\ (2022) introduced chain-of-thought prompting, showing that ``think step by step'' instructions significantly improve multi-step reasoning. Brown et al.\ (2020) established the effectiveness of few-shot in-context learning---providing examples in the prompt---which we implement in our prompt builder.
+Yang et al.\ (2020) introduced FinBERT, a BERT model fine-tuned on financial communications. Huang et al.\ (2022) demonstrated RAG-based approaches for earnings call Q\&A, finding grounded systems outperform ungrounded LLMs on factual recall. Wei et al.\ (2022) introduced chain-of-thought prompting, showing that ``think step by step'' instructions significantly improve multi-step reasoning. Brown et al.\ (2020) established the effectiveness of few-shot in-context learning, providing examples in the prompt, which we implement in our prompt builder.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Methodology}
@@ -199,7 +209,7 @@ Yang et al.\ (2020) introduced FinBERT, a BERT model fine-tuned on financial com
 
 The system implements a two-phase RAG architecture (Figure~\ref{fig:architecture}). Phase~1 (Indexing) runs once per document; Phase~2 (Querying) runs on every user question.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[
   node distance = 0.35cm and 0.45cm,
@@ -285,7 +295,7 @@ Raw extracted text cannot be fed to an embedding model whole. We use LangChain's
 
 \subsubsection{Technique 2: Transformer-Based LLM}
 
-The generation component is provider-agnostic: it targets the OpenAI Chat Completions API, which is also exposed by several free providers. By default the system uses \textbf{Groq} (free tier) running \textbf{Llama~3.3 70B}, with OpenAI \texttt{gpt-4o-mini} as an alternative---both decoder-only transformer LLMs selected at run time via a single configurable client (only the base URL and model name differ). Key configuration: temperature = 0.1 (near-deterministic for factual tasks) and max tokens = 1000. When no LLM key is configured, the system degrades gracefully to a free local retrieval-only mode that returns the top-ranked passage, so the full pipeline remains runnable at zero cost.
+The generation component is provider-agnostic: it targets the OpenAI Chat Completions API, which is also exposed by several free providers. By default the system uses \textbf{Groq} (free tier) running \textbf{Llama~3.3 70B}, with OpenAI \texttt{gpt-4o-mini} as an alternative, both decoder-only transformer LLMs selected at run time via a single configurable client (only the base URL and model name differ). Key configuration: temperature = 0.1 (near-deterministic for factual tasks) and max tokens = 1000. When no LLM key is configured, the system degrades gracefully to a free local retrieval-only mode that returns the top-ranked passage, so the full pipeline remains runnable at zero cost.
 
 \subsubsection{Technique 3: Prompt Engineering}
 
@@ -317,7 +327,7 @@ where $\mathbf{q}$ is the query embedding and $\mathbf{d}$ is a document chunk e
 
 The system is organised into five independent modules. Table~\ref{tab:modules} summarises each module's files and responsibilities.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Module structure and responsibilities}
 \label{tab:modules}
@@ -358,7 +368,7 @@ The system is organised into five independent modules. Table~\ref{tab:modules} s
 
 Table~\ref{tab:stack} lists the major libraries and justification for each choice.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Technology stack and design justification}
 \label{tab:stack}
@@ -397,7 +407,7 @@ The system exposes four REST endpoints:
 Financial PDFs contain tables with revenue and expense data. pdfplumber's \texttt{extract\_tables()} method preserves tabular structure; PyPDF2 merges columns into garbled text. PyPDF2 is retained as a fallback for simple, well-structured PDFs.
 
 \textbf{Why 800-token chunks?}
-Gao et al.\ (2023) recommend 500--1000 tokens for financial documents. At 800 tokens, a chunk covers approximately 2--3 paragraphs---sufficient to contain a complete metric with context but small enough for precise retrieval.
+Gao et al.\ (2023) recommend 500--1000 tokens for financial documents. At 800 tokens, a chunk covers approximately 2--3 paragraphs, sufficient to contain a complete metric with context but small enough for precise retrieval.
 
 \textbf{Why cosine similarity?}
 Cosine similarity is invariant to vector magnitude, making it robust to documents of different lengths. Two semantically similar sentences with different word counts will have high cosine similarity regardless of vector norm.
@@ -411,10 +421,10 @@ Cosine similarity is invariant to vector magnitude, making it robust to document
 Quantitative evaluation uses the publicly available \textbf{financial-qa-10K} dataset, hosted on the Hugging Face Hub (\url{https://huggingface.co/datasets/virattt/financial-qa-10K}). The dataset contains \textbf{7{,}000 question--answer pairs} automatically derived from real SEC 10-K annual-report filings of large public companies (e.g.\ NVIDIA, CVS, Eli Lilly, Etsy). Each record provides four fields used in our experiments:
 
 \begin{itemize}[noitemsep]
-  \item \texttt{question} --- a natural-language financial question;
-  \item \texttt{answer} --- the ground-truth answer string;
-  \item \texttt{context} --- the exact passage from the 10-K that supports the answer (the gold retrieval target);
-  \item \texttt{ticker} / \texttt{filing} --- provenance (company and source filing, e.g.\ \texttt{NVDA 2023\_10K}).
+  \item \texttt{question}, a natural-language financial question;
+  \item \texttt{answer}, the ground-truth answer string;
+  \item \texttt{context}, the exact passage from the 10-K that supports the answer (the gold retrieval target);
+  \item \texttt{ticker} / \texttt{filing}, provenance (company and source filing, e.g.\ \texttt{NVDA 2023\_10K}).
 \end{itemize}
 
 \textbf{Sampling methodology.} For reproducibility we draw a fixed random sample of \textbf{50 question--answer pairs} (seed~=~42) and cache it locally as JSON, so every run is deterministic and offline after the first download. Within each retrieval experiment the 50 gold \texttt{context} passages form a shared candidate pool: for any given question exactly one passage is the correct target and the remaining 49 act as distractors. Answer keywords for the Keyword-Hit-Rate metric are derived automatically from each gold \texttt{answer} (content words and numeric tokens, stop words removed). The loader and methodology are implemented in \texttt{evaluation/dataset\_loader.py}.
@@ -449,7 +459,7 @@ The \textbf{Separability Gap} $= \overline{\text{sim}}_{\text{similar}} - \overl
 
 Table~\ref{tab:baseline} reports gold source-passage retrieval over the 50 real SEC 10-K question--answer pairs. For each question the method ranks all 50 candidate passages; we measure whether the question's exact source passage is retrieved at rank~1 ($\text{Hit}_1$) or within the top three ($\text{Hit}_3$), its mean reciprocal rank (MRR), and the top-3 keyword overlap with the gold answer ($P_3$).
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Retrieval quality on 50 real SEC 10-K Q\&A pairs: TF-IDF vs.\ Word2Vec vs.\ SentenceTransformer}
 \label{tab:baseline}
@@ -466,13 +476,13 @@ Word2Vec (skip-gram, $d$=100)             & 0.640 & 0.760 & 0.717 & 0.447 & 4.3\
 \end{tabular}
 \end{table}
 
-On real filings the SentenceTransformer retrieves the correct source passage \textbf{first for every query} ($\text{Hit}_1 = 1.000$, MRR $= 1.000$). TF-IDF is a surprisingly strong baseline ($\text{Hit}_1 = 0.940$), because financial questions frequently reuse the exact terminology of their source passage---a setting that favours lexical matching; it even leads on the keyword-overlap metric $P_3$. Word2Vec is weakest ($\text{Hit}_1 = 0.640$): trained only on the small in-corpus vocabulary, it generalises poorly to paraphrased queries. The semantic model's advantage is robustness---it never misses, whereas the lexical baseline fails on the $6\%$ of queries that paraphrase their source. The trade-off is latency ($139$\,ms vs.\ $4$--$10$\,ms), still well within interactive limits.
+On real filings the SentenceTransformer retrieves the correct source passage \textbf{first for every query} ($\text{Hit}_1 = 1.000$, MRR $= 1.000$). TF-IDF is a surprisingly strong baseline ($\text{Hit}_1 = 0.940$), because financial questions frequently reuse the exact terminology of their source passage, a setting that favours lexical matching; it even leads on the keyword-overlap metric $P_3$. Word2Vec is weakest ($\text{Hit}_1 = 0.640$): trained only on the small in-corpus vocabulary, it generalises poorly to paraphrased queries. The semantic model's advantage is robustness, it never misses, whereas the lexical baseline fails on the $6\%$ of queries that paraphrase their source. The trade-off is latency ($139$\,ms vs.\ $4$--$10$\,ms), still well within interactive limits.
 
 \subsubsection{Experiment 2: RAG vs.\ No-RAG Evaluation}
 
-Table~\ref{tab:ragnorag} compares three answer strategies across all 50 real questions, measured by Keyword Hit Rate (KHR)---the fraction of gold-answer keywords present in the generated answer.
+Table~\ref{tab:ragnorag} compares three answer strategies across all 50 real questions, measured by Keyword Hit Rate (KHR), the fraction of gold-answer keywords present in the generated answer.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{RAG vs.\ No-RAG vs.\ Random-Context on 50 real Q\&A pairs (Keyword Hit Rate)}
 \label{tab:ragnorag}
@@ -489,13 +499,13 @@ Random Context (irrelevant chunks)          & 0.133 \\
 \end{tabular}
 \end{table}
 
-The contrast is decisive: RAG recovers $84\%$ of gold-answer keywords, versus essentially zero ($0.8\%$) for the ungrounded No-RAG baseline, which cannot access filing-specific figures. The Random-Context ablation ($13.3\%$) confirms that context alone is insufficient---\textit{relevant} context is what matters. (The faithfulness and hallucination heuristics used in the smaller pilot become degenerate on this larger, more diverse set when run in offline simulation mode, so we report the robust KHR signal here; with a live LLM API key the harness additionally records per-answer faithfulness.)
+The contrast is decisive: RAG recovers $84\%$ of gold-answer keywords, versus essentially zero ($0.8\%$) for the ungrounded No-RAG baseline, which cannot access filing-specific figures. The Random-Context ablation ($13.3\%$) confirms that context alone is insufficient, \textit{relevant} context is what matters. (The faithfulness and hallucination heuristics used in the smaller pilot become degenerate on this larger, more diverse set when run in offline simulation mode, so we report the robust KHR signal here; with a live LLM API key the harness additionally records per-answer faithfulness.)
 
 \subsubsection{Experiment 3: Intrinsic Embedding Benchmark}
 
 Whereas Experiment~1 measures end-to-end retrieval on the real dataset, Experiment~3 isolates \textit{intrinsic} embedding quality on a curated set of controlled similar/dissimilar financial sentence pairs. Table~\ref{tab:benchmark} reports the Separability Gap together with retrieval metrics on this probe set.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Intrinsic embedding benchmark on curated probe pairs: separability gap, Precision, MRR, NDCG, and latency}
 \label{tab:benchmark}
@@ -520,7 +530,7 @@ MiniLM-L6-v2 achieves perfect retrieval scores and the highest Separability Gap 
 
 \subsection{Retrieval Quality Analysis}
 
-MiniLM-L6-v2 consistently outperforms both baselines on every metric. The performance gap is most pronounced in semantic understanding: MiniLM achieves an average cosine similarity of 0.672 between paraphrased sentence pairs, vs.\ 0.330 for Word2Vec and 0.130 for TF-IDF---a 3--5$\times$ advantage reflecting the transformer's contextual encoding capability. MiniLM correctly assigns low similarity (0.124) to unrelated sentences, achieving a Separability Gap of 0.548 vs.\ 0.163 for Word2Vec and 0.130 for TF-IDF.
+MiniLM-L6-v2 consistently outperforms both baselines on every metric. The performance gap is most pronounced in semantic understanding: MiniLM achieves an average cosine similarity of 0.672 between paraphrased sentence pairs, vs.\ 0.330 for Word2Vec and 0.130 for TF-IDF, a 3--5$\times$ advantage reflecting the transformer's contextual encoding capability. MiniLM correctly assigns low similarity (0.124) to unrelated sentences, achieving a Separability Gap of 0.548 vs.\ 0.163 for Word2Vec and 0.130 for TF-IDF.
 
 \subsection{Generation Quality Analysis}
 
@@ -545,10 +555,10 @@ The 91.7\,ms SentenceTransformer query time represents a 150$\times$ increase ov
 \subsection{Key Findings}
 
 \textbf{Contextual embeddings are essential for financial Q\&A.}
-The 2.7$\times$ improvement in MRR from Word2Vec (0.370) to SentenceTransformer (1.000) is explained by financial language's high density of domain-specific terminology and paraphrasing. A query about ``R\&D spend'' must match a passage about ``research and development expenses''---possible only with contextual embeddings trained on semantic similarity objectives.
+The 2.7$\times$ improvement in MRR from Word2Vec (0.370) to SentenceTransformer (1.000) is explained by financial language's high density of domain-specific terminology and paraphrasing. A query about ``R\&D spend'' must match a passage about ``research and development expenses'', possible only with contextual embeddings trained on semantic similarity objectives.
 
 \textbf{Retrieval quality determines answer quality.}
-The Random Context ablation (KHR = 0.133) demonstrates that providing any context is insufficient---the \textit{right} context is necessary. This underscores that the retrieval component is the critical bottleneck in the RAG pipeline.
+The Random Context ablation (KHR = 0.133) demonstrates that providing any context is insufficient, the \textit{right} context is necessary. This underscores that the retrieval component is the critical bottleneck in the RAG pipeline.
 
 \textbf{Grounding prevents fabrication.}
 The structured system prompt with explicit ``do not speculate'' rules, combined with relevant retrieved context, keeps answers anchored to the source filing. The ungrounded No-RAG baseline, lacking access to filing-specific figures, recovered almost none of the expected answer content (KHR = 0.008).
@@ -567,7 +577,7 @@ The structured system prompt with explicit ``do not speculate'' rules, combined 
 \begin{enumerate}[leftmargin=*, noitemsep]
   \item Financial documents have natural section boundaries (Item 1A, Note 3, etc.); financial-specific chunking on section headings would likely improve retrieval further.
   \item Without chunk overlap, a financial metric split at a chunk boundary may be retrieved incompletely; the 150-token overlap ensures boundary context is preserved.
-  \item Setting temperature = 0.1 rather than the default 1.0 was essential for factual consistency---the same question must consistently produce the same answer in a financial context.
+  \item Setting temperature = 0.1 rather than the default 1.0 was essential for factual consistency, the same question must consistently produce the same answer in a financial context.
 \end{enumerate}
 
 % ─────────────────────────────────────────────────────────────────────────────
@@ -580,7 +590,7 @@ This project successfully designed, implemented, and evaluated an AI-powered fin
 
 \begin{enumerate}[leftmargin=*, noitemsep]
   \item \textbf{NLP:} Text preprocessing, Word2Vec and TF-IDF embedding baselines, and MiniLM-L6-v2 sentence-transformer embeddings with intelligent chunking.
-  \item \textbf{LLM:} Decoder-only transformer generation via the OpenAI-compatible Chat Completions API---Groq (free, Llama~3.3 70B) by default or OpenAI GPT-4o-mini---for grounded answer generation.
+  \item \textbf{LLM:} Decoder-only transformer generation via the OpenAI-compatible Chat Completions API, Groq (free, Llama~3.3 70B) by default or OpenAI GPT-4o-mini, for grounded answer generation.
   \item \textbf{Prompt Engineering:} Systematic 7-rule system prompt, chain-of-thought reasoning, and 2-shot in-context learning examples.
 \end{enumerate}
 
@@ -603,7 +613,8 @@ Experimental results on 50 real SEC 10-K question--answer pairs confirm the supe
 \addcontentsline{toc}{section}{References}
 % ─────────────────────────────────────────────────────────────────────────────
 
-\begin{enumerate}[label={[\arabic*]}, leftmargin=*, noitemsep]
+\small
+\begin{enumerate}[label={[\arabic*]}, leftmargin=*, itemsep=2pt]
 
 \item Brown, T., Mann, B., Ryder, N., Subbiah, M., Kaplan, J., Dhariwal, P., \ldots\ Amodei, D. (2020). Language models are few-shot learners. \textit{Advances in Neural Information Processing Systems}, \textit{33}, 1877--1901. \url{https://arxiv.org/abs/2005.14165}
 
@@ -634,42 +645,12 @@ Experimental results on 50 real SEC 10-K question--answer pairs confirm the supe
 \item U.S. Securities and Exchange Commission. (n.d.). \textit{EDGAR full-text search system}. \url{https://www.sec.gov/cgi-bin/browse-edgar}
 
 \end{enumerate}
+\normalsize
 
 % ─────────────────────────────────────────────────────────────────────────────
-\newpage
 \appendix
 \section{Key Code Snippets}
 % ─────────────────────────────────────────────────────────────────────────────
-
-\subsection{PDF Text Extraction (\texttt{ingestion/pdf\_loader.py})}
-
-\begin{lstlisting}[caption={FinancialPDFLoader: pdfplumber extraction with table support and text cleaning}]
-class FinancialPDFLoader:
-    def extract_text(self) -> List[Dict]:
-        pages = []
-        with pdfplumber.open(self.file_path) as pdf:
-            for i, page in enumerate(pdf.pages):
-                raw_text   = page.extract_text() or ""
-                tables     = page.extract_tables() or []
-                table_text = self._tables_to_text(tables)
-                full_text  = raw_text + "\n" + table_text
-                clean      = self._clean_text(full_text)
-                if clean.strip():
-                    pages.append({
-                        "page_number": i + 1,
-                        "text": clean,
-                        "source": self.file_path.name,
-                    })
-        return pages
-
-    def _clean_text(self, text: str) -> str:
-        text = re.sub(r'\n{3,}', '\n\n', text)
-        text = re.sub(r' {3,}', ' ', text)
-        text = re.sub(r'Page \d+ of \d+', '', text)
-        # Fix PDF ligature encoding (U+FB01 = fi, U+FB02 = fl)
-        text = text.replace('ﬁ', 'fi').replace('ﬂ', 'fl')
-        return text.strip()
-\end{lstlisting}
 
 \subsection{System Prompt and Prompt Builder (\texttt{generation/prompt\_builder.py})}
 
@@ -727,27 +708,28 @@ def answer_question(question: str,
 \section{Evaluation Results Summary}
 % ─────────────────────────────────────────────────────────────────────────────
 
-The full evaluation results are saved as a timestamped JSON file in \texttt{evaluation/results/}. The numerical values below were produced by running \texttt{python run\_evaluation.py \text{-{}-}save} on the local machine.
+The figures below visualise the evaluation results from Tables~\ref{tab:baseline},~\ref{tab:ragnorag}, and~\ref{tab:benchmark}. They are produced by \texttt{generate\_appendix\_charts.py}; the full machine-readable results are saved as timestamped JSON in \texttt{evaluation/results/} via \texttt{python run\_evaluation.py \text{-{}-}save}.
 
-\begin{lstlisting}[caption={Live evaluation output on 50 real financial-qa-10K pairs (evaluation/results/)}, language={}]
-{
-  "embedding_baseline": {
-    "TF-IDF":              {"hit_at_1": 0.940, "hit_at_3": 1.000, "avg_mrr": 0.963},
-    "Word2Vec":            {"hit_at_1": 0.640, "hit_at_3": 0.760, "avg_mrr": 0.717},
-    "SentenceTransformer": {"hit_at_1": 1.000, "hit_at_3": 1.000, "avg_mrr": 1.000}
-  },
-  "rag_vs_norag": {
-    "No-RAG":         {"avg_keyword_hit_rate": 0.008},
-    "Random-Context": {"avg_keyword_hit_rate": 0.133},
-    "RAG":            {"avg_keyword_hit_rate": 0.840}
-  },
-  "embedding_benchmark": {
-    "Word2Vec (sg, d=100)":  {"precision_at_1": 0.200, "mrr": 0.370},
-    "TF-IDF (n-gram 1-2)":   {"precision_at_1": 0.600, "mrr": 0.658},
-    "MiniLM-L6-v2 (384-dim)":{"precision_at_1": 1.000, "mrr": 1.000}
-  }
-}
-\end{lstlisting}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{../figure_B1_retrieval_comparison.png}
+\caption{Retrieval quality on 50 real SEC 10-K Q\&A pairs, Hit@1, Hit@3, and MRR for TF-IDF, Word2Vec, and the proposed SentenceTransformer (MiniLM-L6-v2).}
+\label{fig:appendix-b1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{../figure_B2_rag_vs_norag.png}
+\caption{RAG vs.\ No-RAG vs.\ Random-Context, Keyword Hit Rate across the 50 questions. RAG recovers $84\%$ of gold-answer keywords versus under $1\%$ without grounding.}
+\label{fig:appendix-b2}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{../figure_B3_embedding_benchmark.png}
+\caption{Intrinsic embedding benchmark, separability and retrieval metrics for Word2Vec, TF-IDF, and MiniLM-L6-v2 on the curated probe set.}
+\label{fig:appendix-b3}
+\end{figure}
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Team Contribution Breakdown}
@@ -756,16 +738,16 @@ The full evaluation results are saved as a timestamped JSON file in \texttt{eval
 \begin{table}[H]
 \centering
 \caption{Individual team member contributions}
-\setlength{\tabcolsep}{10pt}
-\renewcommand{\arraystretch}{1.3}
-\begin{tabular}{L{2.8cm} L{10cm}}
+\setlength{\tabcolsep}{8pt}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{L{2.6cm} L{3.4cm} L{6.4cm}}
 \toprule
-\textbf{Member} & \textbf{Contribution} \\
+\textbf{Reg. No.} & \textbf{Name} & \textbf{Contribution} \\
 \midrule
-Member 1 & PDF ingestion module (\texttt{pdf\_loader.py}), text chunking, PDF loader testing \\
-Member 2 & Embedding module, vector store (ChromaDB), retriever implementation \\
-Member 3 & Prompt engineering, QA chain, LLM integration, prompt optimisation \\
-Member 4 & FastAPI routes and schemas, evaluation framework, deployment (Docker) \\
+EG/2021/4487 & Dinojan V. & Core RAG pipeline, embeddings and vector store (ChromaDB), retrieval, report, and live deployment \\
+EG/2021/4566 & Jackshan Venujan G.S. & LLM integration and answer generation, web application UI, and document-management features \\
+EG/2021/4825 & Tharshihan R. & Evaluation framework, baseline and benchmark experiments, and result visualisations (appendix charts) \\
+EG/2021/4805 & Senevirathna P.U.S. & NLP text preprocessing and chunking, prompt engineering, and testing \\
 \bottomrule
 \end{tabular}
 \end{table}
