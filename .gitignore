@@ -99,3 +99,6 @@ models/
 # Local development
 .claude/
 *.code-workspace
+
+# Notebook-generated charts (regenerated on each run)
+report/figures_*.png

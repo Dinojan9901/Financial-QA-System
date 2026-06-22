@@ -35,6 +35,10 @@ datasets>=3.0                  # Hugging Face — loads the real financial-qa-10
 # ── Web UI (Demonstrable Output) ─────────────────────────────────────────────
 streamlit>=1.35.0
 
+# ── Notebook walkthrough ──────────────────────────────────────────────────────
+matplotlib>=3.7                # charts in financial_qa_walkthrough.ipynb
+jupyter>=1.0                   # to run the notebook (notebook, ipykernel, nbconvert)
+
 # ── Testing ───────────────────────────────────────────────────────────────────
 pytest==8.3.3
 pytest-asyncio==0.24.0
